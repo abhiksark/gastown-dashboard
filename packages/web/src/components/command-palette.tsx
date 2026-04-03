@@ -20,11 +20,13 @@ import {
   AlertTriangle,
   Mail,
   FlaskConical,
+  Terminal,
 } from "lucide-react";
 
 const pages = [
   { label: "Overview", path: "/", icon: LayoutDashboard },
   { label: "Agents", path: "/agents", icon: Users },
+  { label: "Sessions", path: "/sessions", icon: Terminal },
   { label: "Beads", path: "/beads", icon: CircleDot },
   { label: "Rigs", path: "/rigs", icon: Server },
   { label: "Convoys", path: "/convoys", icon: Truck },

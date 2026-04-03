@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { NavLink } from "react-router";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, CircleDot, Server, Truck, GitMerge, AlertTriangle, Mail, FlaskConical, PanelLeftClose, PanelLeft } from "lucide-react";
+import { LayoutDashboard, Users, Terminal, CircleDot, Server, Truck, GitMerge, AlertTriangle, Mail, FlaskConical, PanelLeftClose, PanelLeft } from "lucide-react";
 
 const navItems = [
   { to: "/", label: "Overview", icon: LayoutDashboard, end: true },
   { to: "/agents", label: "Agents", icon: Users },
+  { to: "/sessions", label: "Sessions", icon: Terminal },
   { to: "/beads", label: "Beads", icon: CircleDot },
   { to: "/rigs", label: "Rigs", icon: Server },
   { to: "/convoys", label: "Convoys", icon: Truck },

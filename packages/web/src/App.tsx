@@ -13,6 +13,7 @@ import { RefineryPage } from "@/pages/refinery";
 import { EscalationsPage } from "@/pages/escalations";
 import { MailPage } from "@/pages/mail";
 import { RigDetailPage } from "@/pages/rig-detail";
+import { SessionsPage } from "@/pages/sessions";
 import { WorkflowsPage } from "@/pages/workflows";
 import { CommandPalette } from "@/components/command-palette";
 
@@ -29,6 +30,7 @@ export function App() {
             <Routes>
               <Route path="/" element={<OverviewPage />} />
               <Route path="/agents" element={<AgentsPage />} />
+              <Route path="/sessions" element={<SessionsPage />} />
               <Route path="/beads" element={<BeadsPage />} />
               <Route path="/rigs" element={<RigsPage />} />
               <Route path="/rigs/:name" element={<RigDetailPage />} />

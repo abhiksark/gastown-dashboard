@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NavLink } from "react-router";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, CircleDot, Server, Truck, GitMerge, AlertTriangle, PanelLeftClose, PanelLeft } from "lucide-react";
+import { LayoutDashboard, Users, CircleDot, Server, Truck, GitMerge, AlertTriangle, Activity, PanelLeftClose, PanelLeft } from "lucide-react";
 
 const navItems = [
   { to: "/", label: "Overview", icon: LayoutDashboard, end: true },
@@ -11,6 +11,7 @@ const navItems = [
   { to: "/convoys", label: "Convoys", icon: Truck },
   { to: "/refinery", label: "Refinery", icon: GitMerge },
   { to: "/escalations", label: "Escalations", icon: AlertTriangle },
+  { to: "/feed", label: "Feed", icon: Activity },
 ];
 
 export function Sidebar() {

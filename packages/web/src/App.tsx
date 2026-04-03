@@ -9,6 +9,7 @@ import { RigsPage } from "@/pages/rigs";
 import { ConvoysPage } from "@/pages/convoys";
 import { RefineryPage } from "@/pages/refinery";
 import { EscalationsPage } from "@/pages/escalations";
+import { FeedPage } from "@/pages/feed";
 
 export function App() {
   return (
@@ -25,6 +26,7 @@ export function App() {
             <Route path="/convoys" element={<ConvoysPage />} />
             <Route path="/refinery" element={<RefineryPage />} />
             <Route path="/escalations" element={<EscalationsPage />} />
+            <Route path="/feed" element={<FeedPage />} />
           </Routes>
         </main>
         <StatusBar />

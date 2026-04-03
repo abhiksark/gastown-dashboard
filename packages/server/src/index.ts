@@ -4,6 +4,9 @@ import overviewRoutes from "./routes/overview.js";
 import rigsRoutes from "./routes/rigs.js";
 import agentsRoutes from "./routes/agents.js";
 import beadsRoutes from "./routes/beads.js";
+import convoysRoutes from "./routes/convoys.js";
+import refineryRoutes from "./routes/refinery.js";
+import escalationsRoutes from "./routes/escalations.js";
 import feedRoutes from "./feed.js";
 
 const app = express();
@@ -18,6 +21,9 @@ app.use("/api/overview", overviewRoutes);
 app.use("/api/rigs", rigsRoutes);
 app.use("/api/agents", agentsRoutes);
 app.use("/api/beads", beadsRoutes);
+app.use("/api/convoys", convoysRoutes);
+app.use("/api/refinery", refineryRoutes);
+app.use("/api/escalations", escalationsRoutes);
 app.use("/api/feed", feedRoutes);
 
 const PORT = process.env.PORT || 4800;

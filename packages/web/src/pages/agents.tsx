@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
 import { apiPost } from "@/lib/api";
@@ -57,7 +58,7 @@ export function AgentsPage() {
                 const target = agent.rig ? `${agent.rig}/${agent.name}` : agent.name;
                 return (
                   <tr key={`${agent.rig}-${agent.name}`} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors">
-                    <td className="px-4 py-3"><div className="flex items-center gap-2"><span className="text-base">{agent.icon}</span><span className="text-zinc-200 font-medium">{agent.name}</span></div></td>
+                    <td className="px-4 py-3"><Link to={`/agents/${encodeURIComponent(agent.name)}`} className="flex items-center gap-2 hover:underline"><span className="text-base">{agent.icon}</span><span className="text-zinc-200 font-medium">{agent.name}</span></Link></td>
                     <td className="px-4 py-3"><StatusBadge status={agent.role} /></td>
                     <td className="px-4 py-3 text-zinc-400">{agent.rig || "\u2014"}</td>
                     <td className="px-4 py-3 text-right">

@@ -9,6 +9,7 @@ import { RigsPage } from "@/pages/rigs";
 import { ConvoysPage } from "@/pages/convoys";
 import { RefineryPage } from "@/pages/refinery";
 import { EscalationsPage } from "@/pages/escalations";
+import { AgentDetailPage } from "@/pages/agent-detail";
 
 export function App() {
   return (
@@ -20,6 +21,7 @@ export function App() {
           <Routes>
             <Route path="/" element={<OverviewPage />} />
             <Route path="/agents" element={<AgentsPage />} />
+            <Route path="/agents/:name" element={<AgentDetailPage />} />
             <Route path="/beads" element={<BeadsPage />} />
             <Route path="/rigs" element={<RigsPage />} />
             <Route path="/convoys" element={<ConvoysPage />} />

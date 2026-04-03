@@ -156,6 +156,32 @@ export interface FormulaStep {
   needs?: string[];
 }
 
+// From `gt session list --json`
+export interface Session {
+  rig: string;
+  polecat: string;
+  session_id: string;
+  running: boolean;
+}
+
+// From `gt polecat status :rig/:name --json`
+export interface PolecatStatus {
+  name: string;
+  rig: string;
+  state: string;
+  assigned_bead: string | null;
+  session_running: boolean;
+  created_at: string;
+  last_activity: string;
+}
+
+// From `gt witness status :rig --json`
+export interface WitnessStatus {
+  running: boolean;
+  rig_name: string;
+  session: string;
+}
+
 // From `gt mol current --json`
 export interface MoleculeStatus {
   identity: string;

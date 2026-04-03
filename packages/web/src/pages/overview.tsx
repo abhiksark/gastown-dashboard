@@ -151,9 +151,10 @@ export function OverviewPage() {
                     }`}
                   />
                   <span className="text-sm text-zinc-200">{rig.name}</span>
-                  <span className="text-xs text-zinc-600">
-                    {rig.crew}c {rig.polecats}p
+                  <span className={`text-xs font-medium ${rig.polecats > 0 ? "text-blue-400" : "text-zinc-600"}`}>
+                    {rig.polecats} {rig.polecats === 1 ? "polecat" : "polecats"}
                   </span>
+                  <span className="text-xs text-zinc-600">{rig.crew}c</span>
                 </div>
                 <div className="flex gap-1.5">
                   <StatusBadge status={rig.witness} />

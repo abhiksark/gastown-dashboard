@@ -201,9 +201,9 @@ export function RigDetailPage() {
                   <div className="space-y-1.5 text-xs">
                     <div className="flex justify-between">
                       <span className="text-zinc-500">Assigned bead</span>
-                      {pc.assigned_bead ? (
+                      {pc.issue ? (
                         <Link to="/beads" className="text-blue-400 hover:text-blue-300 font-mono transition-colors">
-                          {pc.assigned_bead}
+                          {pc.issue}
                         </Link>
                       ) : (
                         <span className="text-zinc-600">&mdash;</span>

@@ -164,15 +164,15 @@ export interface Session {
   running: boolean;
 }
 
-// From `gt polecat status :rig/:name --json`
+// From `gt polecat list :rig --json` / `gt polecat status :rig/:name --json`
 export interface PolecatStatus {
   name: string;
   rig: string;
   state: string;
-  assigned_bead: string | null;
+  issue: string | null;
   session_running: boolean;
-  created_at: string;
-  last_activity: string;
+  created_at?: string;
+  last_activity?: string;
 }
 
 // From `gt witness status :rig --json`

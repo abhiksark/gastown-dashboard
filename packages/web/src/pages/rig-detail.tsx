@@ -333,7 +333,7 @@ export function RigDetailPage() {
         {rigAgents.length === 0 ? (
           <p className="text-xs text-zinc-600">No agents assigned to this rig</p>
         ) : (
-          <div className="rounded-lg border border-[var(--color-border)] overflow-hidden">
+          <div className="rounded-lg border border-[var(--color-border)] overflow-hidden overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[var(--color-border)] bg-[var(--color-card)]">
@@ -365,7 +365,7 @@ export function RigDetailPage() {
         {rigBeads.length === 0 ? (
           <p className="text-xs text-zinc-600">No beads assigned to agents on this rig</p>
         ) : (
-          <div className="rounded-lg border border-[var(--color-border)] overflow-hidden">
+          <div className="rounded-lg border border-[var(--color-border)] overflow-hidden overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[var(--color-border)] bg-[var(--color-card)]">

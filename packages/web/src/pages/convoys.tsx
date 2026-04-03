@@ -15,7 +15,7 @@ export function ConvoysPage() {
     return (
       <div className="space-y-4">
         <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Convoys</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[...Array(2)].map((_, i) => (
             <div key={i} className="h-36 rounded-lg skeleton" />
           ))}
@@ -37,7 +37,7 @@ export function ConvoysPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {data.map((convoy) => {
             const total = convoy.total || 0;
             const done = convoy.done || 0;

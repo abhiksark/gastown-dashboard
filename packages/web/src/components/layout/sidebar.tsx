@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { NavLink } from "react-router";
 import { cn } from "@/lib/utils";
 import { useFetch } from "@/hooks/use-fetch";
-import { LayoutDashboard, Users, Terminal, CircleDot, Server, Truck, GitMerge, AlertTriangle, Mail, FlaskConical, Activity, PanelLeftClose, PanelLeft, Settings, DollarSign, ClipboardList } from "lucide-react";
+import { LayoutDashboard, Users, Terminal, CircleDot, Server, Truck, GitMerge, AlertTriangle, Mail, FlaskConical, Activity, PanelLeftClose, PanelLeft, Settings, DollarSign, ClipboardList, X } from "lucide-react";
 import type { Escalation } from "@/lib/types";
 
 interface NavItem {
@@ -18,9 +18,30 @@ interface NavGroup {
   items: NavItem[];
 }
 
-export function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+interface SidebarProps {
+  mobileOpen: boolean;
+  onMobileClose: () => void;
+}
+
+const SIDEBAR_COLLAPSED_KEY = "gastown-sidebar-collapsed";
+
+export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true";
+    } catch {
+      return false;
+    }
+  });
   const { data: escalations } = useFetch<Escalation[]>("/escalations", 30000);
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try { localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(next)); } catch {}
+      return next;
+    });
+  }, []);
 
   const openEscalationCount = escalations
     ? escalations.filter((e) => e.status === "open").length
@@ -57,24 +78,47 @@ export function Sidebar() {
     },
   ];
 
-  return (
-    <aside className={cn(
-      "flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)]",
-      "transition-[width] duration-200",
-      collapsed ? "w-16" : "w-56"
-    )}>
+  // Close mobile sidebar on nav link click
+  const handleNavClick = useCallback(() => {
+    onMobileClose();
+  }, [onMobileClose]);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onMobileClose();
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [mobileOpen, onMobileClose]);
+
+  const sidebarContent = (
+    <>
       <div className="flex items-center h-12 px-4 border-b border-[var(--color-border)]">
         {!collapsed && (
           <span className="text-sm font-semibold text-zinc-100 tracking-tight">Gas Town</span>
         )}
+        {/* Desktop: collapse toggle, Mobile: close button */}
         <button
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={() => {
+            // On mobile, close the overlay
+            if (window.innerWidth < 768) {
+              onMobileClose();
+            } else {
+              toggleCollapsed();
+            }
+          }}
           className={cn(
             "p-1.5 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors",
             collapsed ? "mx-auto" : "ml-auto"
           )}
         >
-          {collapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+          {/* Show X on mobile, collapse/expand on desktop */}
+          <span className="md:hidden"><X className="h-4 w-4" /></span>
+          <span className="hidden md:inline">
+            {collapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+          </span>
         </button>
       </div>
       <nav className="flex-1 py-1 px-2 flex flex-col">
@@ -93,6 +137,7 @@ export function Sidebar() {
                     key={to}
                     to={to}
                     end={end}
+                    onClick={handleNavClick}
                     className={({ isActive }) => cn(
                       "flex items-center gap-3 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors",
                       isActive
@@ -120,6 +165,7 @@ export function Sidebar() {
         <div className="border-t border-[var(--color-border)] pt-2 pb-2">
           <NavLink
             to="/settings"
+            onClick={handleNavClick}
             className={({ isActive }) => cn(
               "flex items-center gap-3 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors",
               isActive
@@ -132,6 +178,32 @@ export function Sidebar() {
           </NavLink>
         </div>
       </nav>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className={cn(
+        "hidden md:flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)]",
+        "transition-[width] duration-200",
+        collapsed ? "w-16" : "w-56"
+      )}>
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            onClick={onMobileClose}
+          />
+          <aside className="fixed inset-y-0 left-0 z-50 flex flex-col w-56 border-r border-[var(--color-border)] bg-[var(--color-surface)] md:hidden">
+            {sidebarContent}
+          </aside>
+        </>
+      )}
+    </>
   );
 }

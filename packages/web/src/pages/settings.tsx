@@ -100,6 +100,7 @@ export function SettingsPage() {
           <h3 className="text-sm font-semibold text-zinc-100">Agent Presets</h3>
         </div>
         {agents && agents.length > 0 ? (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--color-border)]">
@@ -118,6 +119,7 @@ export function SettingsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         ) : agents ? (
           <p className="px-5 py-6 text-xs text-zinc-600 text-center">No agent presets configured</p>
         ) : (
@@ -131,6 +133,7 @@ export function SettingsPage() {
           <h3 className="text-sm font-semibold text-zinc-100">Rig Configuration</h3>
         </div>
         {rigs && rigs.length > 0 ? (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--color-border)]">
@@ -155,6 +158,7 @@ export function SettingsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         ) : rigs ? (
           <p className="px-5 py-6 text-xs text-zinc-600 text-center">No rigs configured</p>
         ) : (

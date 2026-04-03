@@ -84,6 +84,7 @@ export function RefineryPage() {
                 Queue empty
               </div>
             ) : (
+              <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[var(--color-border)]">
@@ -135,6 +136,7 @@ export function RefineryPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         );

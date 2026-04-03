@@ -2,10 +2,11 @@
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
+    <script>try{if(localStorage.getItem('gastown-theme')==='light'){document.documentElement.classList.remove('dark');document.documentElement.classList.add('light')}}catch(e){}</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gas Town</title>
   </head>
-  <body class="bg-[#0a0a0a] text-zinc-100 antialiased">
+  <body class="bg-[var(--color-surface)] antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -217,7 +217,7 @@ export function BeadsPage() {
       ) : (
         <div className="flex gap-4">
           {/* Table */}
-          <div className="flex-1 rounded-lg border border-[var(--color-border)] overflow-hidden">
+          <div className="flex-1 rounded-lg border border-[var(--color-border)] overflow-hidden overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[var(--color-border)] bg-[var(--color-card)]">

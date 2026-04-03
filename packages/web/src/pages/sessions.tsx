@@ -134,6 +134,7 @@ export function SessionsPage() {
                   </div>
                 </div>
 
+                <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[var(--color-border)]">
@@ -193,6 +194,7 @@ export function SessionsPage() {
                     })}
                   </tbody>
                 </table>
+                </div>
               </div>
             );
           })}

@@ -14,9 +14,9 @@ export function RigsPage() {
     <div className="space-y-4">
       <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Rigs</h2>
       {loading ? (
-        <div className="grid grid-cols-2 gap-4">{[...Array(2)].map((_, i) => <div key={i} className="h-40 rounded-lg skeleton" />)}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{[...Array(2)].map((_, i) => <div key={i} className="h-40 rounded-lg skeleton" />)}</div>
       ) : data && data.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {data.map((rig) => (
             <div key={rig.name} onClick={() => navigate(`/rigs/${rig.name}`)} className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-5 hover:bg-[var(--color-card-hover)] transition-colors cursor-pointer">
               <div className="flex items-start justify-between">

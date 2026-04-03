@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant light (&:where(.light, .light *));
 
 @theme {
   --color-card: #141414;
@@ -17,8 +18,54 @@
   --radius-sm: 0.25rem;
 }
 
+/* Light mode overrides */
+.light {
+  --color-card: #fafafa;
+  --color-card-hover: #f5f5f5;
+  --color-border: #e5e5e7;
+  --color-surface: #ffffff;
+}
+
 body {
   font-family: var(--font-sans);
+}
+
+/* Light mode body colors */
+.light body,
+.light {
+  background-color: var(--color-surface);
+  color: #18181b; /* zinc-900 */
+}
+
+/* Light mode text adjustments */
+.light .text-zinc-100 { color: #18181b; }
+.light .text-zinc-200 { color: #27272a; }
+.light .text-zinc-300 { color: #3f3f46; }
+.light .text-zinc-400 { color: #52525b; }
+.light .text-zinc-500 { color: #71717a; }
+.light .text-zinc-600 { color: #a1a1aa; }
+
+/* Light mode backgrounds */
+.light .bg-zinc-800 { background-color: #e4e4e7; }
+.light .bg-zinc-800\/50 { background-color: rgb(228 228 231 / 0.5); }
+.light .bg-zinc-900 { background-color: #f4f4f5; }
+.light .bg-zinc-900\/50 { background-color: rgb(244 244 245 / 0.5); }
+.light .bg-zinc-700 { background-color: #d4d4d8; }
+.light .bg-black\/50 { background-color: rgb(0 0 0 / 0.3); }
+
+/* Light mode hover backgrounds */
+.light .hover\:bg-zinc-800:hover { background-color: #e4e4e7; }
+.light .hover\:bg-zinc-800\/50:hover { background-color: rgb(228 228 231 / 0.5); }
+
+/* Light mode borders */
+.light .border-zinc-500 { border-color: #a1a1aa; }
+.light .text-zinc-700 { color: #d4d4d8; }
+
+/* Light mode skeleton */
+.light .skeleton {
+  background: linear-gradient(90deg, #f4f4f5 25%, #e4e4e7 50%, #f4f4f5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
 /* Focus ring for keyboard navigation */
@@ -52,4 +99,8 @@ a:focus-visible,
 ::-webkit-scrollbar-thumb {
   background: #333;
   border-radius: 3px;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
 }

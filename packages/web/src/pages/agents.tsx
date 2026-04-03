@@ -121,7 +121,7 @@ export function AgentsPage() {
         <div className="space-y-2">{[...Array(4)].map((_, i) => <div key={i} className="h-14 rounded-lg skeleton" />)}</div>
       ) : (
         <div className="flex gap-4">
-          <div className="flex-1 rounded-lg border border-[var(--color-border)] overflow-hidden">
+          <div className="flex-1 rounded-lg border border-[var(--color-border)] overflow-hidden overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[var(--color-border)] bg-[var(--color-card)]">

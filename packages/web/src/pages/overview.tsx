@@ -77,7 +77,7 @@ export function OverviewPage() {
       <div className="space-y-4">
         <div className="h-12 rounded-lg skeleton" />
         <div className="h-8 rounded-lg skeleton" />
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="h-72 rounded-lg skeleton" />
           <div className="h-72 rounded-lg skeleton" />
         </div>
@@ -163,7 +163,7 @@ export function OverviewPage() {
       )}
 
       {/* 4. Compact Inline Stat Row */}
-      <div className="flex items-center gap-3 text-xs px-1">
+      <div className="flex flex-wrap items-center gap-3 text-xs px-1">
         <span className="text-zinc-400">{data.rigs.total} Rigs</span>
         <span className="text-zinc-700">|</span>
         <span className="text-zinc-400">{data.agents.total} Agents</span>
@@ -188,7 +188,7 @@ export function OverviewPage() {
       <ActivityHeatmap />
 
       {/* 6. Two-column: LiveFeed | Rig Health */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <LiveFeed />
         <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] overflow-hidden">
           <div className="px-4 py-3 border-b border-[var(--color-border)]">

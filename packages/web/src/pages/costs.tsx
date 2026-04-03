@@ -181,6 +181,7 @@ export function CostsPage() {
           <h3 className="text-sm font-semibold text-zinc-100">Sessions ({sessions.length})</h3>
         </div>
         {sortedSessions.length > 0 ? (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--color-border)]">
@@ -207,6 +208,7 @@ export function CostsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         ) : (
           <p className="px-5 py-8 text-xs text-zinc-600 text-center">No session cost data</p>
         )}

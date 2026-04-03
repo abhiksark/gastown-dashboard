@@ -54,6 +54,8 @@ function sseSubscribe(listener: SSEListener): () => void {
   };
 }
 
+export { sseSubscribe };
+
 // --- Event-to-path relevance mapping ---
 
 type EventCategory = "bead" | "agent" | "session" | "escalation";

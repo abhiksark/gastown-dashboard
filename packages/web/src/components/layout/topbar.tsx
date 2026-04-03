@@ -2,6 +2,7 @@ import { Breadcrumbs } from "./breadcrumbs";
 import { useRealtime, useRealtimeStatus } from "@/hooks/use-realtime";
 import type { Overview } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { Bell, BellOff } from "lucide-react";
 
 const STATUS_CONFIG = {
   live: { color: "bg-emerald-500", label: "Live" },
@@ -9,7 +10,12 @@ const STATUS_CONFIG = {
   offline: { color: "bg-red-500", label: "Offline" },
 } as const;
 
-export function Topbar() {
+interface TopbarProps {
+  notificationsEnabled?: boolean;
+  onToggleNotifications?: () => void;
+}
+
+export function Topbar({ notificationsEnabled, onToggleNotifications }: TopbarProps) {
   const status = useRealtimeStatus();
   const { data } = useRealtime<Overview>("/overview", 10000);
   const { color, label } = STATUS_CONFIG[status];
@@ -38,6 +44,20 @@ export function Topbar() {
             </>
           )}
         </div>
+        {onToggleNotifications && (
+          <button
+            onClick={onToggleNotifications}
+            className={cn(
+              "p-1.5 rounded-md transition-colors",
+              notificationsEnabled
+                ? "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
+                : "text-zinc-600 hover:text-zinc-400 hover:bg-zinc-800"
+            )}
+            title={notificationsEnabled ? "Disable notifications" : "Enable notifications"}
+          >
+            {notificationsEnabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+          </button>
+        )}
         <button
           onClick={openPalette}
           className="flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1.5 text-xs text-zinc-500 hover:text-zinc-300 hover:border-zinc-500 transition-colors"

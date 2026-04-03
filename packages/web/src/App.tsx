@@ -5,6 +5,8 @@ import { Topbar } from "@/components/layout/topbar";
 import { ToastContainer } from "@/components/toast";
 import { ToastContext, useToastState } from "@/hooks/use-toast";
 import { useGlobalShortcuts } from "@/hooks/use-keyboard";
+import { useNotifications } from "@/hooks/use-notifications";
+import { useNotificationWatcher } from "@/hooks/use-notification-watcher";
 import { ShortcutHelp } from "@/components/shortcut-help";
 import { OverviewPage } from "@/pages/overview";
 import { AgentsPage } from "@/pages/agents";
@@ -29,13 +31,15 @@ export function App() {
   const [helpOpen, setHelpOpen] = useState(false);
   const callbacks = useMemo(() => ({ onHelp: () => setHelpOpen((v) => !v) }), []);
   useGlobalShortcuts(navigate, callbacks);
+  const notifications = useNotifications();
+  useNotificationWatcher(notifications.sendNotification);
 
   return (
     <ToastContext.Provider value={toastState}>
       <div className="flex h-screen bg-[var(--color-surface)]">
         <Sidebar />
         <div className="flex flex-col flex-1 min-w-0">
-          <Topbar />
+          <Topbar notificationsEnabled={notifications.enabled} onToggleNotifications={() => notifications.setEnabled(!notifications.enabled)} />
           <main className="flex-1 overflow-auto px-6 py-4">
             <Routes>
               <Route path="/" element={<OverviewPage />} />

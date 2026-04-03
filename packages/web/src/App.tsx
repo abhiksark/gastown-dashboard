@@ -1,8 +1,11 @@
-import { Routes, Route } from "react-router";
+import { useState, useMemo } from "react";
+import { Routes, Route, useNavigate } from "react-router";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { ToastContainer } from "@/components/toast";
 import { ToastContext, useToastState } from "@/hooks/use-toast";
+import { useGlobalShortcuts } from "@/hooks/use-keyboard";
+import { ShortcutHelp } from "@/components/shortcut-help";
 import { OverviewPage } from "@/pages/overview";
 import { AgentsPage } from "@/pages/agents";
 import { BeadsPage } from "@/pages/beads";
@@ -22,6 +25,10 @@ import { CostsPage } from "@/pages/costs";
 
 export function App() {
   const toastState = useToastState();
+  const navigate = useNavigate();
+  const [helpOpen, setHelpOpen] = useState(false);
+  const callbacks = useMemo(() => ({ onHelp: () => setHelpOpen((v) => !v) }), []);
+  useGlobalShortcuts(navigate, callbacks);
 
   return (
     <ToastContext.Provider value={toastState}>
@@ -52,6 +59,7 @@ export function App() {
       </div>
       <ToastContainer toasts={toastState.toasts} onRemove={toastState.removeToast} />
       <CommandPalette />
+      <ShortcutHelp open={helpOpen} onClose={() => setHelpOpen(false)} />
     </ToastContext.Provider>
   );
 }

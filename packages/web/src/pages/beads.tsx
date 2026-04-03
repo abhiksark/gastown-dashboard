@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
+import { useTableKeyboard } from "@/hooks/use-keyboard";
 import { Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
@@ -53,6 +54,20 @@ export function BeadsPage() {
     }
     return c;
   }, [data]);
+
+  useTableKeyboard({
+    onMove: useCallback((delta: number) => {
+      if (filtered.length === 0) return;
+      const currentIdx = selected ? filtered.findIndex((b) => b.id === selected.id) : -1;
+      const next = Math.max(0, Math.min(filtered.length - 1, currentIdx + delta));
+      setSelected(filtered[next]);
+    }, [filtered, selected]),
+    onEscape: useCallback(() => {
+      setSelected(null);
+      setShowCloseInput(false);
+    }, []),
+    enabled: !createOpen && !slingOpen,
+  });
 
   function handleSort(key: SortKey) {
     if (sortKey === key) setSortAsc(!sortAsc);

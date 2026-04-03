@@ -20,6 +20,7 @@ import metricsRoutes from "./routes/metrics.js";
 import anomaliesRoutes from "./routes/anomalies.js";
 import { auditLogger } from "./audit.js";
 import auditRoutes from "./routes/audit.js";
+import { attachTerminalWS } from "./terminal.js";
 
 const app = express();
 app.use(cors());
@@ -51,6 +52,7 @@ app.use("/api/anomalies", anomaliesRoutes);
 app.use("/api/audit", auditRoutes);
 
 const PORT = process.env.PORT || 4800;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`[gastown-server] listening on :${PORT}`);
 });
+attachTerminalWS(server);

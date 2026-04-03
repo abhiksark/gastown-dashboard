@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useFetch } from "@/hooks/use-fetch";
-import { StatusBadge } from "@/components/status-badge";
+import { InlineStatus } from "@/components/inline-status";
 import type { Session } from "@/lib/types";
 import { Terminal, Activity, CircleOff } from "lucide-react";
 
@@ -127,7 +127,7 @@ export function SessionsPage() {
                           {session.session_id}
                         </td>
                         <td className="px-4 py-2">
-                          <StatusBadge status={session.running ? "running" : "stopped"} />
+                          <InlineStatus status={session.running ? "running" : "stopped"} />
                         </td>
                       </tr>
                     ))}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams, Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
+import { InlineStatus } from "@/components/inline-status";
 import { apiPost } from "@/lib/api";
 import type { Rig, Agent, Bead, PolecatStatus, Session } from "@/lib/types";
 import { Server, ArrowLeft, RotateCw } from "lucide-react";
@@ -212,7 +213,7 @@ export function RigDetailPage() {
                         <span className="text-zinc-200 text-xs font-medium">{agent.name}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-2"><StatusBadge status={agent.role} /></td>
+                    <td className="px-4 py-2"><InlineStatus status={agent.role} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -242,7 +243,7 @@ export function RigDetailPage() {
                   <tr key={bead.id} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors">
                     <td className="px-4 py-2 font-mono text-xs text-zinc-500">{bead.id}</td>
                     <td className="px-4 py-2 text-zinc-200 text-xs truncate max-w-xs">{bead.title}</td>
-                    <td className="px-4 py-2"><StatusBadge status={bead.status} /></td>
+                    <td className="px-4 py-2"><InlineStatus status={bead.status} /></td>
                     <td className="px-4 py-2 text-zinc-400 text-xs">{bead.assignee || "\u2014"}</td>
                   </tr>
                 ))}

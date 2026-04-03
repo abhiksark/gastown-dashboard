@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
+import { InlineStatus } from "@/components/inline-status";
 import type { Bead } from "@/lib/types";
 import { X, CircleDot } from "lucide-react";
 
@@ -46,7 +47,7 @@ export function BeadsPage() {
 
   function sortHeader(label: string, field: SortKey) {
     return (
-      <th className="text-left font-medium text-zinc-400 px-4 py-3 cursor-pointer hover:text-zinc-200 select-none" onClick={() => handleSort(field)}>
+      <th className="text-left font-medium text-zinc-400 px-4 py-2 text-xs cursor-pointer hover:text-zinc-200 select-none" onClick={() => handleSort(field)}>
         {label}{sortKey === field && <span className="ml-1">{sortAsc ? "\u2191" : "\u2193"}</span>}
       </th>
     );
@@ -76,11 +77,11 @@ export function BeadsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[var(--color-border)] bg-[var(--color-card)]">
-                  <th className="text-left font-medium text-zinc-400 px-4 py-3">ID</th>
-                  <th className="text-left font-medium text-zinc-400 px-4 py-3">Title</th>
-                  <th className="text-left font-medium text-zinc-400 px-4 py-3">Status</th>
+                  <th className="text-left font-medium text-zinc-400 px-4 py-2 text-xs">ID</th>
+                  <th className="text-left font-medium text-zinc-400 px-4 py-2 text-xs">Title</th>
+                  <th className="text-left font-medium text-zinc-400 px-4 py-2 text-xs">Status</th>
                   {sortHeader("Priority", "priority")}
-                  <th className="text-left font-medium text-zinc-400 px-4 py-3">Assignee</th>
+                  <th className="text-left font-medium text-zinc-400 px-4 py-2 text-xs">Assignee</th>
                   {sortHeader("Updated", "updated_at")}
                 </tr>
               </thead>
@@ -95,8 +96,8 @@ export function BeadsPage() {
                         : "hover:bg-[var(--color-card-hover)]"
                     }`}
                   >
-                    <td className="px-4 py-3 font-mono text-xs text-zinc-500">{bead.id}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-2 font-mono text-xs text-zinc-500">{bead.id}</td>
+                    <td className="px-4 py-2">
                       <div>
                         <p className="text-zinc-200 font-medium truncate max-w-md">{bead.title}</p>
                         {bead.labels && bead.labels.length > 0 && (
@@ -106,10 +107,10 @@ export function BeadsPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3"><StatusBadge status={bead.status} /></td>
-                    <td className="px-4 py-3 text-zinc-400 tabular-nums">P{bead.priority}</td>
-                    <td className="px-4 py-3 text-xs">{bead.assignee ? <Link to="/agents" onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-zinc-100 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors">{bead.assignee}</Link> : <span className="text-zinc-400">{"\u2014"}</span>}</td>
-                    <td className="px-4 py-3 text-zinc-500 text-xs">{new Date(bead.updated_at).toLocaleDateString()}</td>
+                    <td className="px-4 py-2"><InlineStatus status={bead.status} /></td>
+                    <td className="px-4 py-2 text-zinc-400 tabular-nums">P{bead.priority}</td>
+                    <td className="px-4 py-2 text-xs">{bead.assignee ? <Link to="/agents" onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-zinc-100 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors">{bead.assignee}</Link> : <span className="text-zinc-400">{"\u2014"}</span>}</td>
+                    <td className="px-4 py-2 text-zinc-500 text-xs">{new Date(bead.updated_at).toLocaleDateString()}</td>
                   </tr>
                 ))}
                 {filtered.length === 0 && <tr><td colSpan={6} className="px-4 py-8 text-center text-zinc-600">No beads found</td></tr>}

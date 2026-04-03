@@ -1,5 +1,6 @@
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
+import { InlineStatus } from "@/components/inline-status";
 import type { Rig } from "@/lib/types";
 import { GitMerge } from "lucide-react";
 
@@ -116,7 +117,7 @@ export function RefineryPage() {
                         {mr.id}
                       </td>
                       <td className="px-4 py-2">
-                        <StatusBadge status={mr.status} />
+                        <InlineStatus status={mr.status} />
                       </td>
                       <td className="px-4 py-2 text-zinc-400 tabular-nums text-xs">
                         P{mr.priority}

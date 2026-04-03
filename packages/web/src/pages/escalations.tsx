@@ -6,6 +6,7 @@ import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { Escalation } from "@/lib/types";
 import { AlertTriangle, CheckCircle } from "lucide-react";
+import { ExportButton } from "@/components/export-button";
 
 export function EscalationsPage() {
   const { data, loading, error, refetch } = useRealtime<Escalation[]>(
@@ -78,7 +79,24 @@ export function EscalationsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Escalations</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Escalations</h2>
+          {filtered.length > 0 && (
+            <ExportButton
+              data={filtered as unknown as Record<string, unknown>[]}
+              columns={[
+                { key: "id", label: "ID" },
+                { key: "description", label: "Description" },
+                { key: "severity", label: "Severity" },
+                { key: "status", label: "Status" },
+                { key: "source_agent", label: "Source" },
+                { key: "rig", label: "Rig" },
+                { key: "created_at", label: "Created" },
+              ]}
+              filename="escalations"
+            />
+          )}
+        </div>
         <div className="flex gap-1">
           {statuses.map((s) => (
             <button

@@ -5,6 +5,7 @@ import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { Session } from "@/lib/types";
 import { Terminal, Activity, CircleOff, RotateCw, Bomb } from "lucide-react";
+import { ExportButton } from "@/components/export-button";
 
 export function SessionsPage() {
   const { data, loading, error, refetch } = useRealtime<Session[]>("/sessions", 5000);
@@ -62,7 +63,21 @@ export function SessionsPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Sessions</h2>
+      <div className="flex items-center gap-2">
+        <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Sessions</h2>
+        {data && data.length > 0 && (
+          <ExportButton
+            data={data as unknown as Record<string, unknown>[]}
+            columns={[
+              { key: "rig", label: "Rig" },
+              { key: "polecat", label: "Agent" },
+              { key: "session_id", label: "Session ID" },
+              { key: "running", label: "Running" },
+            ]}
+            filename="sessions"
+          />
+        )}
+      </div>
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4">

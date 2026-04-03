@@ -10,6 +10,7 @@ import { ContextMenu, type ContextMenuItem } from "@/components/context-menu";
 import type { Agent, Session } from "@/lib/types";
 import { InlineConfirm } from "@/components/inline-confirm";
 import { X, Zap, Eye, Server } from "lucide-react";
+import { ExportButton } from "@/components/export-button";
 
 interface HookInfo {
   agent: string;
@@ -107,7 +108,20 @@ export function AgentsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Agents</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Agents</h2>
+          {filtered.length > 0 && (
+            <ExportButton
+              data={filtered as unknown as Record<string, unknown>[]}
+              columns={[
+                { key: "name", label: "Name" },
+                { key: "role", label: "Role" },
+                { key: "rig", label: "Rig" },
+              ]}
+              filename="agents"
+            />
+          )}
+        </div>
         <div className="flex gap-1">
           {roles.map((role) => (
             <button key={role} onClick={() => setRoleFilter(role)}

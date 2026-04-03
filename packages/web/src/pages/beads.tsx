@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { InlineStatus } from "@/components/inline-status";
 import type { Bead } from "@/lib/types";
 import { X, CircleDot, Plus, Zap, Copy, Eye, List, GitBranch } from "lucide-react";
+import { ExportButton } from "@/components/export-button";
 
 type SortKey = "priority" | "updated_at" | "created_at" | "status";
 type ViewMode = "list" | "graph";
@@ -106,6 +107,20 @@ export function BeadsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Beads</h2>
+          {filtered.length > 0 && (
+            <ExportButton
+              data={filtered as unknown as Record<string, unknown>[]}
+              columns={[
+                { key: "id", label: "ID" },
+                { key: "title", label: "Title" },
+                { key: "status", label: "Status" },
+                { key: "priority", label: "Priority" },
+                { key: "assignee", label: "Assignee" },
+                { key: "updated_at", label: "Updated" },
+              ]}
+              filename="beads"
+            />
+          )}
           <button
             onClick={() => setCreateOpen(true)}
             className="rounded-md bg-[var(--color-accent)] p-1.5 text-white hover:bg-blue-600 transition-colors"

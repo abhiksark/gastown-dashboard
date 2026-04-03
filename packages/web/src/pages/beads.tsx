@@ -44,16 +44,16 @@ export function BeadsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-zinc-100">Beads</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Beads</h2>
         <div className="flex gap-1">
           {statuses.map((s) => (
             <button key={s} onClick={() => setStatusFilter(s)}
-              className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${statusFilter === s ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"}`}>{s}</button>
+              className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${statusFilter === s ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-600" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"}`}>{s}</button>
           ))}
         </div>
       </div>
       {loading ? (
-        <div className="space-y-2">{[...Array(4)].map((_, i) => <div key={i} className="h-14 rounded-lg bg-[var(--color-card)] animate-pulse" />)}</div>
+        <div className="space-y-2">{[...Array(4)].map((_, i) => <div key={i} className="h-14 rounded-lg skeleton" />)}</div>
       ) : (
         <div className="rounded-lg border border-[var(--color-border)] overflow-hidden">
           <table className="w-full text-sm">

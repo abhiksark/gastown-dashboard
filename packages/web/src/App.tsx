@@ -16,7 +16,7 @@ export function App() {
       <Sidebar />
       <div className="flex flex-col flex-1 min-w-0">
         <Topbar />
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto px-8 py-6">
           <Routes>
             <Route path="/" element={<OverviewPage />} />
             <Route path="/agents" element={<AgentsPage />} />

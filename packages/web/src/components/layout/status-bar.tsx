@@ -16,18 +16,18 @@ export function StatusBar() {
   };
 
   return (
-    <footer className="flex items-center h-7 px-4 border-t border-[var(--color-border)] bg-[var(--color-surface)] text-xs text-zinc-500">
+    <footer className="flex items-center h-8 px-4 border-t border-[var(--color-border)] bg-[var(--color-surface)] text-xs text-zinc-500">
       <div className="flex items-center gap-2">
         <span className={cn("h-2 w-2 rounded-full", healthColor[health])} />
         <span className="capitalize">{health}</span>
       </div>
       {data && (
         <>
-          <span className="mx-3 text-zinc-700">|</span>
+          <span className="mx-3 text-zinc-600">|</span>
           <span>{data.agents.total} agents</span>
-          <span className="mx-3 text-zinc-700">|</span>
+          <span className="mx-3 text-zinc-600">|</span>
           <span>{data.rigs.total} rigs</span>
-          <span className="mx-3 text-zinc-700">|</span>
+          <span className="mx-3 text-zinc-600">|</span>
           <span>{data.beads.total} beads</span>
         </>
       )}

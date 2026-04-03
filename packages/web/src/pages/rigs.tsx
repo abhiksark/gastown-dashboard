@@ -10,9 +10,9 @@ export function RigsPage() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-zinc-100">Rigs</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Rigs</h2>
       {loading ? (
-        <div className="grid grid-cols-2 gap-4">{[...Array(2)].map((_, i) => <div key={i} className="h-40 rounded-lg bg-[var(--color-card)] animate-pulse" />)}</div>
+        <div className="grid grid-cols-2 gap-4">{[...Array(2)].map((_, i) => <div key={i} className="h-40 rounded-lg skeleton" />)}</div>
       ) : data && data.length > 0 ? (
         <div className="grid grid-cols-2 gap-4">
           {data.map((rig) => (

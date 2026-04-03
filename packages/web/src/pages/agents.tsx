@@ -29,18 +29,18 @@ export function AgentsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-zinc-100">Agents</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Agents</h2>
         <div className="flex gap-1">
           {roles.map((role) => (
             <button key={role} onClick={() => setRoleFilter(role)}
               className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-                roleFilter === role ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
+                roleFilter === role ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-600" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
               }`}>{role}</button>
           ))}
         </div>
       </div>
       {loading ? (
-        <div className="space-y-2">{[...Array(4)].map((_, i) => <div key={i} className="h-14 rounded-lg bg-[var(--color-card)] animate-pulse" />)}</div>
+        <div className="space-y-2">{[...Array(4)].map((_, i) => <div key={i} className="h-14 rounded-lg skeleton" />)}</div>
       ) : (
         <div className="rounded-lg border border-[var(--color-border)] overflow-hidden">
           <table className="w-full text-sm">
@@ -62,7 +62,7 @@ export function AgentsPage() {
                     <td className="px-4 py-3 text-zinc-400">{agent.rig || "\u2014"}</td>
                     <td className="px-4 py-3 text-right">
                       <button onClick={() => handleNudge(target)} disabled={nudging === target}
-                        className="rounded-md border border-[var(--color-border)] px-2.5 py-1 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors disabled:opacity-50">
+                        className="rounded-md border border-[var(--color-border)] px-2.5 py-1 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors active:scale-[0.98] disabled:opacity-50">
                         {nudging === target ? "Nudging..." : "Nudge"}
                       </button>
                     </td>

@@ -73,7 +73,7 @@ export function EscalationsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-zinc-100">Escalations</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Escalations</h2>
         <div className="flex gap-1">
           {statuses.map((s) => (
             <button
@@ -81,7 +81,7 @@ export function EscalationsPage() {
               onClick={() => setStatusFilter(s)}
               className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
                 statusFilter === s
-                  ? "bg-zinc-700 text-zinc-100"
+                  ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-600"
                   : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
               }`}
             >
@@ -96,7 +96,7 @@ export function EscalationsPage() {
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="h-16 rounded-lg bg-[var(--color-card)] animate-pulse"
+              className="h-16 rounded-lg skeleton"
             />
           ))}
         </div>
@@ -154,14 +154,14 @@ export function EscalationsPage() {
                   <button
                     onClick={() => handleAck(esc.id)}
                     disabled={acting === esc.id}
-                    className="rounded-md border border-[var(--color-border)] px-3 py-1 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors disabled:opacity-50"
+                    className="rounded-md border border-[var(--color-border)] px-3 py-1 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors active:scale-[0.98] disabled:opacity-50"
                   >
                     {acting === esc.id ? "..." : "Acknowledge"}
                   </button>
                   <button
                     onClick={() => handleClose(esc.id)}
                     disabled={acting === esc.id}
-                    className="rounded-md border border-emerald-500/20 px-3 py-1 text-xs text-emerald-400 hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
+                    className="rounded-md border border-emerald-500/20 px-3 py-1 text-xs text-emerald-400 hover:bg-emerald-500/10 transition-colors active:scale-[0.98] disabled:opacity-50"
                   >
                     {acting === esc.id ? "..." : "Resolve"}
                   </button>
@@ -173,7 +173,7 @@ export function EscalationsPage() {
                   <button
                     onClick={() => handleClose(esc.id)}
                     disabled={acting === esc.id}
-                    className="rounded-md border border-emerald-500/20 px-3 py-1 text-xs text-emerald-400 hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
+                    className="rounded-md border border-emerald-500/20 px-3 py-1 text-xs text-emerald-400 hover:bg-emerald-500/10 transition-colors active:scale-[0.98] disabled:opacity-50"
                   >
                     {acting === esc.id ? "..." : "Resolve"}
                   </button>

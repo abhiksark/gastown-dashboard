@@ -27,10 +27,10 @@ export function RefineryPage() {
   if (loading) {
     return (
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-zinc-100">Refinery</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Refinery</h2>
         <div className="space-y-4">
           {[...Array(2)].map((_, i) => (
-            <div key={i} className="h-32 rounded-lg bg-[var(--color-card)] animate-pulse" />
+            <div key={i} className="h-32 rounded-lg skeleton" />
           ))}
         </div>
       </div>
@@ -44,7 +44,7 @@ export function RefineryPage() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-zinc-100">Refinery</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Refinery</h2>
 
       {!hasAnyMRs ? (
         <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-12 text-center">

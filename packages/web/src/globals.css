@@ -4,7 +4,7 @@
 
 @theme {
   --color-card: #141414;
-  --color-card-hover: #1a1a1a;
+  --color-card-hover: #1c1c1c;
   --color-border: #262626;
   --color-surface: #0a0a0a;
   --color-accent: #3b82f6;
@@ -19,6 +19,27 @@
 
 body {
   font-family: var(--font-sans);
+}
+
+/* Focus ring for keyboard navigation */
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Shimmer loading skeleton */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #141414 25%, #1c1c1c 50%, #141414 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
 ::-webkit-scrollbar {

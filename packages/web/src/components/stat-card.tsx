@@ -17,11 +17,11 @@ export function StatCard({ label, value, icon: Icon, trend, className }: StatCar
       className
     )}>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm text-zinc-400">{label}</span>
+        <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">{label}</span>
         <Icon className="h-4 w-4 text-zinc-500" />
       </div>
       <div className="flex items-baseline gap-2">
-        <span className="text-2xl font-semibold text-zinc-100 tabular-nums">{value}</span>
+        <span className="text-3xl font-bold tracking-tight text-zinc-100 tabular-nums">{value}</span>
         {trend && trend !== "neutral" && (
           <span className={cn("text-xs font-medium", trend === "up" ? "text-[var(--color-success)]" : "text-[var(--color-error)]")}>
             {trend === "up" ? "\u2191" : "\u2193"}

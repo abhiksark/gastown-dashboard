@@ -17,10 +17,10 @@ export function OverviewPage() {
       <div className="space-y-6">
         <div className="grid grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 rounded-lg bg-[var(--color-card)] animate-pulse" />
+            <div key={i} className="h-24 rounded-lg skeleton" />
           ))}
         </div>
-        <div className="h-72 rounded-lg bg-[var(--color-card)] animate-pulse" />
+        <div className="h-72 rounded-lg skeleton" />
       </div>
     );
   }

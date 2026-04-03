@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
+import { InlineStatus } from "@/components/inline-status";
 import { apiPost, apiFetch } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { Agent, Session } from "@/lib/types";
@@ -79,10 +80,10 @@ export function AgentsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[var(--color-border)] bg-[var(--color-card)]">
-                  <th className="text-left font-medium text-zinc-400 px-4 py-3">Agent</th>
-                  <th className="text-left font-medium text-zinc-400 px-4 py-3">Role</th>
-                  <th className="text-left font-medium text-zinc-400 px-4 py-3">Rig</th>
-                  <th className="text-right font-medium text-zinc-400 px-4 py-3">Actions</th>
+                  <th className="text-left font-medium text-zinc-400 px-4 py-2 text-xs">Agent</th>
+                  <th className="text-left font-medium text-zinc-400 px-4 py-2 text-xs">Role</th>
+                  <th className="text-left font-medium text-zinc-400 px-4 py-2 text-xs">Rig</th>
+                  <th className="text-right font-medium text-zinc-400 px-4 py-2 text-xs">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -92,13 +93,13 @@ export function AgentsPage() {
                     <tr
                       key={`${agent.rig}-${agent.name}`}
                       onClick={() => setSelected(agent)}
-                      className={`border-b border-[var(--color-border)] cursor-pointer transition-colors ${
+                      className={`group border-b border-[var(--color-border)] cursor-pointer transition-colors ${
                         selected?.name === agent.name && selected?.rig === agent.rig
                           ? "bg-blue-500/5"
                           : "hover:bg-[var(--color-card-hover)]"
                       }`}
                     >
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2">
                         <Link
                           to={`/agents/${encodeURIComponent(agent.name)}`}
                           onClick={(e) => e.stopPropagation()}
@@ -108,9 +109,9 @@ export function AgentsPage() {
                           <span className="text-zinc-200 font-medium">{agent.name}</span>
                         </Link>
                       </td>
-                      <td className="px-4 py-3"><StatusBadge status={agent.role} /></td>
-                      <td className="px-4 py-3">{agent.rig ? <Link to={`/rigs/${agent.rig}`} onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-zinc-100 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors">{agent.rig}</Link> : <span className="text-zinc-400">{"\u2014"}</span>}</td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-2"><InlineStatus status={agent.role} /></td>
+                      <td className="px-4 py-2">{agent.rig ? <Link to={`/rigs/${agent.rig}`} onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-zinc-100 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors">{agent.rig}</Link> : <span className="text-zinc-400">{"\u2014"}</span>}</td>
+                      <td className="px-4 py-2 text-right">
                         <button
                           onClick={(e) => { e.stopPropagation(); handleNudge(target); }}
                           disabled={nudging === target}

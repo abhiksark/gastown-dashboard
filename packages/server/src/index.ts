@@ -13,6 +13,7 @@ import sessionsRoutes from "./routes/sessions.js";
 import feedRoutes from "./feed.js";
 import activityRoutes from "./routes/activity.js";
 import actionsRoutes from "./routes/actions.js";
+import controlRoutes from "./routes/control.js";
 
 const app = express();
 app.use(cors());
@@ -35,6 +36,7 @@ app.use("/api/sessions", sessionsRoutes);
 app.use("/api/feed", feedRoutes);
 app.use("/api/feed", activityRoutes);
 app.use("/api/actions", actionsRoutes);
+app.use("/api/control", controlRoutes);
 
 const PORT = process.env.PORT || 4800;
 app.listen(PORT, () => {

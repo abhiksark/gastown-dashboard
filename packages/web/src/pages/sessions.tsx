@@ -1,11 +1,45 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useFetch } from "@/hooks/use-fetch";
 import { InlineStatus } from "@/components/inline-status";
+import { apiPost } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 import type { Session } from "@/lib/types";
-import { Terminal, Activity, CircleOff } from "lucide-react";
+import { Terminal, Activity, CircleOff, RotateCw, Bomb } from "lucide-react";
 
 export function SessionsPage() {
-  const { data, loading, error } = useFetch<Session[]>("/sessions", 5000);
+  const { data, loading, error, refetch } = useFetch<Session[]>("/sessions", 5000);
+  const [restarting, setRestarting] = useState<string | null>(null);
+  const [nuking, setNuking] = useState<string | null>(null);
+  const { addToast } = useToast();
+
+  async function handleRestartSession(rig: string, polecat: string) {
+    const key = `${rig}/${polecat}`;
+    setRestarting(key);
+    try {
+      await apiPost(`/control/session/${encodeURIComponent(rig)}/${encodeURIComponent(polecat)}/restart`);
+      addToast(`Restarted session for ${polecat}`, "success");
+      refetch();
+    } catch (err: any) {
+      addToast(`Restart failed: ${err.message}`, "error");
+    } finally {
+      setRestarting(null);
+    }
+  }
+
+  async function handleNuke(rig: string, polecat: string) {
+    if (!window.confirm(`Nuke polecat ${polecat}? This is destructive and cannot be undone.`)) return;
+    const key = `${rig}/${polecat}`;
+    setNuking(key);
+    try {
+      await apiPost(`/control/polecat/${encodeURIComponent(rig)}/${encodeURIComponent(polecat)}/nuke`, { confirm: true });
+      addToast(`Nuked ${polecat}`, "success");
+      refetch();
+    } catch (err: any) {
+      addToast(`Nuke failed: ${err.message}`, "error");
+    } finally {
+      setNuking(null);
+    }
+  }
 
   const stats = useMemo(() => {
     if (!data) return { total: 0, running: 0, stopped: 0 };
@@ -112,10 +146,15 @@ export function SessionsPage() {
                       <th className="text-left font-medium text-zinc-400 px-4 py-2 text-xs">
                         Status
                       </th>
+                      <th className="text-right font-medium text-zinc-400 px-4 py-2 text-xs">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {sessions.map((session) => (
+                    {sessions.map((session) => {
+                      const key = `${session.rig}/${session.polecat}`;
+                      return (
                       <tr
                         key={session.session_id}
                         className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors"
@@ -129,8 +168,29 @@ export function SessionsPage() {
                         <td className="px-4 py-2">
                           <InlineStatus status={session.running ? "running" : "stopped"} />
                         </td>
+                        <td className="px-4 py-2 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => handleRestartSession(session.rig, session.polecat)}
+                              disabled={restarting === key}
+                              className="rounded px-2 py-0.5 text-[11px] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors disabled:opacity-50"
+                              title="Restart session"
+                            >
+                              <RotateCw className={`h-3 w-3 inline ${restarting === key ? "animate-spin" : ""}`} />
+                            </button>
+                            <button
+                              onClick={() => handleNuke(session.rig, session.polecat)}
+                              disabled={nuking === key}
+                              className="rounded px-2 py-0.5 text-[11px] text-red-400 hover:text-red-300 hover:bg-red-900/30 transition-colors disabled:opacity-50"
+                              title="Nuke polecat"
+                            >
+                              <Bomb className="h-3 w-3 inline" />
+                            </button>
+                          </div>
+                        </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

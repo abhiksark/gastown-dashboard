@@ -19,6 +19,31 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/graph", async (req, res) => {
+  try {
+    const raw = await runCli("bd", ["list", "--all", "--json"]);
+    const beads = Array.isArray(raw) ? raw : [];
+    const nodes = beads.map((b: any) => ({
+      id: b.id,
+      title: b.title,
+      status: b.status,
+      priority: b.priority,
+      issue_type: b.issue_type,
+    }));
+    const edges: { from: string; to: string }[] = [];
+    for (const b of beads) {
+      if (Array.isArray(b.dependencies)) {
+        for (const dep of b.dependencies) {
+          edges.push({ from: dep.depends_on_id, to: dep.issue_id });
+        }
+      }
+    }
+    res.json({ nodes, edges });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   try {
     const all = await runCli("bd", ["list", "--json"]);

@@ -6,16 +6,25 @@ import { StatusBadge } from "@/components/status-badge";
 import { CreateBeadDialog } from "@/components/create-bead-dialog";
 import { SlingDialog } from "@/components/sling-dialog";
 import { ContextMenu } from "@/components/context-menu";
+import { DependencyGraph } from "@/components/dependency-graph";
 import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { InlineStatus } from "@/components/inline-status";
 import type { Bead } from "@/lib/types";
-import { X, CircleDot, Plus, Zap, Copy, Eye } from "lucide-react";
+import { X, CircleDot, Plus, Zap, Copy, Eye, List, GitBranch } from "lucide-react";
 
 type SortKey = "priority" | "updated_at" | "created_at" | "status";
+type ViewMode = "list" | "graph";
+
+interface GraphData {
+  nodes: { id: string; title: string; status: string; priority: number; issue_type: string }[];
+  edges: { from: string; to: string }[];
+}
 
 export function BeadsPage() {
   const { data, loading, error, refetch } = useRealtime<Bead[]>("/beads?all=true", 10000);
+  const { data: graphData } = useRealtime<GraphData>("/beads/graph", 15000);
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("priority");
   const [sortAsc, setSortAsc] = useState(true);
@@ -82,6 +91,14 @@ export function BeadsPage() {
     );
   }
 
+  const handleGraphSelect = useCallback(
+    (id: string) => {
+      const bead = data?.find((b) => b.id === id) ?? null;
+      setSelected(bead);
+    },
+    [data]
+  );
+
   if (error) return <div className="text-red-400 text-sm">Failed to load beads: {error}</div>;
 
   return (
@@ -104,17 +121,99 @@ export function BeadsPage() {
             <Zap className="h-3.5 w-3.5" />
           </button>
         </div>
-        <div className="flex gap-1">
-          {statuses.map((s) => (
-            <button key={s} onClick={() => setStatusFilter(s)}
-              className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${statusFilter === s ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-600" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"}`}>
-              {s}{counts[s] !== undefined ? ` (${counts[s]})` : ""}
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1 rounded-md border border-[var(--color-border)] p-0.5">
+            <button
+              onClick={() => setViewMode("list")}
+              className={`rounded p-1.5 transition-colors ${viewMode === "list" ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"}`}
+              title="List view"
+            >
+              <List className="h-3.5 w-3.5" />
             </button>
-          ))}
+            <button
+              onClick={() => setViewMode("graph")}
+              className={`rounded p-1.5 transition-colors ${viewMode === "graph" ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"}`}
+              title="Graph view"
+            >
+              <GitBranch className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          {viewMode === "list" && (
+            <div className="flex gap-1">
+              {statuses.map((s) => (
+                <button key={s} onClick={() => setStatusFilter(s)}
+                  className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${statusFilter === s ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-600" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"}`}>
+                  {s}{counts[s] !== undefined ? ` (${counts[s]})` : ""}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       {loading ? (
         <div className="space-y-2">{[...Array(4)].map((_, i) => <div key={i} className="h-14 rounded-lg skeleton" />)}</div>
+      ) : viewMode === "graph" ? (
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <DependencyGraph
+              nodes={graphData?.nodes ?? []}
+              edges={graphData?.edges ?? []}
+              onSelectBead={handleGraphSelect}
+              selectedId={selected?.id}
+            />
+          </div>
+          {/* Detail panel (shared with list view) */}
+          {selected && (
+            <div className="w-96 shrink-0 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] overflow-hidden flex flex-col" style={{ maxHeight: "calc(100vh - 200px)" }}>
+              {/* Header */}
+              <div className="px-5 py-4 border-b border-[var(--color-border)]">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <CircleDot className="h-4 w-4 text-zinc-400 shrink-0" />
+                    <span className="font-mono text-xs text-zinc-500">{selected.id}</span>
+                  </div>
+                  <button
+                    onClick={() => setSelected(null)}
+                    className="p-1 rounded-md text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <h3 className="text-sm font-semibold text-zinc-100 mt-2">{selected.title}</h3>
+              </div>
+
+              {/* Metadata */}
+              <div className="px-5 py-3 border-b border-[var(--color-border)] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-500">Status</span>
+                  <StatusBadge status={selected.status} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-500">Priority</span>
+                  <span className="text-xs text-zinc-300 tabular-nums">P{selected.priority}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-500">Type</span>
+                  <span className="text-xs text-zinc-300">{selected.issue_type}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-500">Assignee</span>
+                  <span className="text-xs text-zinc-300">{selected.assignee || "\u2014"}</span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="flex-1 overflow-y-auto px-5 py-4">
+                <h4 className="text-xs font-medium uppercase tracking-wider text-zinc-500 mb-2">Description</h4>
+                {selected.description ? (
+                  <pre className="text-xs text-zinc-300 whitespace-pre-wrap font-sans leading-relaxed">{selected.description}</pre>
+                ) : (
+                  <p className="text-xs text-zinc-600">No description</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       ) : (
         <div className="flex gap-4">
           {/* Table */}

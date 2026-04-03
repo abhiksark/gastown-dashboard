@@ -74,7 +74,7 @@ export function BeadsPage() {
                   <td className="px-4 py-3">
                     <div>
                       <p className="text-zinc-200 font-medium truncate max-w-md">{bead.title}</p>
-                      {bead.labels.length > 0 && (
+                      {bead.labels && bead.labels.length > 0 && (
                         <div className="flex gap-1 mt-1">
                           {bead.labels.map((l) => <span key={l} className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-400">{l}</span>)}
                         </div>

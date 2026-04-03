@@ -17,6 +17,7 @@ import { RigDetailPage } from "@/pages/rig-detail";
 import { SessionsPage } from "@/pages/sessions";
 import { WorkflowsPage } from "@/pages/workflows";
 import { CommandPalette } from "@/components/command-palette";
+import { FeedPage } from "@/pages/feed";
 
 export function App() {
   const toastState = useToastState();
@@ -41,6 +42,7 @@ export function App() {
               <Route path="/escalations" element={<EscalationsPage />} />
               <Route path="/mail" element={<MailPage />} />
               <Route path="/workflows" element={<WorkflowsPage />} />
+              <Route path="/feed" element={<FeedPage />} />
             </Routes>
           </main>
           <StatusBar />

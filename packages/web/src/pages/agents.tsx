@@ -4,7 +4,7 @@ import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
 import { apiPost, apiFetch } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import type { Agent } from "@/lib/types";
+import type { Agent, Session } from "@/lib/types";
 import { X } from "lucide-react";
 
 interface HookInfo {
@@ -16,6 +16,7 @@ interface HookInfo {
 
 export function AgentsPage() {
   const { data, loading, error, refetch } = useFetch<Agent[]>("/agents", 10000);
+  const { data: sessions } = useFetch<Session[]>("/sessions", 10000);
   const [nudging, setNudging] = useState<string | null>(null);
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [selected, setSelected] = useState<Agent | null>(null);
@@ -149,6 +150,27 @@ export function AgentsPage() {
                   <span className="text-xs text-zinc-300">{selected.rig || "\u2014"}</span>
                 </div>
               </div>
+
+              {/* Session status */}
+              {(() => {
+                const session = sessions?.find(
+                  (s) => s.rig === selected.rig && s.polecat === selected.name
+                );
+                if (!session) return null;
+                return (
+                  <div className="px-5 py-3 border-b border-[var(--color-border)] space-y-2">
+                    <h4 className="text-xs font-medium uppercase tracking-wider text-zinc-500 mb-2">Session</h4>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-zinc-500">Status</span>
+                      <StatusBadge status={session.running ? "running" : "stopped"} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-zinc-500">Session ID</span>
+                      <span className="text-xs text-zinc-300 font-mono">{session.session_id}</span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Hook status */}
               <div className="px-5 py-3 flex-1 overflow-y-auto">

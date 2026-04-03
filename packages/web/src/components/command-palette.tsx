@@ -19,6 +19,7 @@ import {
   GitMerge,
   AlertTriangle,
   Mail,
+  FlaskConical,
 } from "lucide-react";
 
 const pages = [
@@ -30,6 +31,7 @@ const pages = [
   { label: "Refinery", path: "/refinery", icon: GitMerge },
   { label: "Escalations", path: "/escalations", icon: AlertTriangle },
   { label: "Mail", path: "/mail", icon: Mail },
+  { label: "Workflows", path: "/workflows", icon: FlaskConical },
 ];
 
 export function CommandPalette() {

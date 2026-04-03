@@ -13,6 +13,7 @@ import { RefineryPage } from "@/pages/refinery";
 import { EscalationsPage } from "@/pages/escalations";
 import { MailPage } from "@/pages/mail";
 import { RigDetailPage } from "@/pages/rig-detail";
+import { WorkflowsPage } from "@/pages/workflows";
 import { CommandPalette } from "@/components/command-palette";
 
 export function App() {
@@ -35,6 +36,7 @@ export function App() {
               <Route path="/refinery" element={<RefineryPage />} />
               <Route path="/escalations" element={<EscalationsPage />} />
               <Route path="/mail" element={<MailPage />} />
+              <Route path="/workflows" element={<WorkflowsPage />} />
             </Routes>
           </main>
           <StatusBar />

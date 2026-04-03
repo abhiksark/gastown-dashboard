@@ -8,8 +8,9 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { apiFetch } from "@/lib/api";
-import type { Agent, Bead, Rig } from "@/lib/types";
+import { apiFetch, apiPost } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
+import type { Agent, Bead, Rig, Session } from "@/lib/types";
 import {
   LayoutDashboard,
   Users,
@@ -21,6 +22,9 @@ import {
   Mail,
   FlaskConical,
   Terminal,
+  Play,
+  Square,
+  RotateCw,
 } from "lucide-react";
 
 const pages = [
@@ -41,7 +45,9 @@ export function CommandPalette() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [beads, setBeads] = useState<Bead[]>([]);
   const [rigs, setRigs] = useState<Rig[]>([]);
+  const [sessions, setSessions] = useState<Session[]>([]);
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -56,14 +62,16 @@ export function CommandPalette() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [a, b, r] = await Promise.all([
+      const [a, b, r, s] = await Promise.all([
         apiFetch<Agent[]>("/agents"),
         apiFetch<Bead[]>("/beads"),
         apiFetch<Rig[]>("/rigs"),
+        apiFetch<Session[]>("/sessions"),
       ]);
       setAgents(a);
       setBeads(b);
       setRigs(r);
+      setSessions(s);
     } catch {
       // silently fail — palette still shows pages
     }
@@ -76,6 +84,16 @@ export function CommandPalette() {
   function go(path: string) {
     setOpen(false);
     navigate(path);
+  }
+
+  async function runControl(label: string, url: string) {
+    setOpen(false);
+    try {
+      await apiPost(url);
+      addToast(label, "success");
+    } catch (err: any) {
+      addToast(`Failed: ${err.message}`, "error");
+    }
   }
 
   return (
@@ -141,6 +159,41 @@ export function CommandPalette() {
                 <span className="ml-auto text-xs text-zinc-500">
                   {rig.polecats} polecats · {rig.crew} crew
                 </span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+        {rigs.length > 0 && (
+          <CommandGroup heading="Control">
+            {rigs.map((rig) => (
+              <CommandItem
+                key={`start-witness-${rig.name}`}
+                value={`control start witness ${rig.name}`}
+                onSelect={() => runControl(`Started witness for ${rig.name}`, `/control/witness/${encodeURIComponent(rig.name)}/start`)}
+              >
+                <Play className="mr-2 h-3.5 w-3.5 text-emerald-400" />
+                Start witness for {rig.name}
+              </CommandItem>
+            ))}
+            {rigs.map((rig) => (
+              <CommandItem
+                key={`stop-witness-${rig.name}`}
+                value={`control stop witness ${rig.name}`}
+                onSelect={() => runControl(`Stopped witness for ${rig.name}`, `/control/witness/${encodeURIComponent(rig.name)}/stop`)}
+              >
+                <Square className="mr-2 h-3.5 w-3.5 text-red-400" />
+                Stop witness for {rig.name}
+              </CommandItem>
+            ))}
+            {sessions.map((s) => (
+              <CommandItem
+                key={`restart-session-${s.rig}-${s.polecat}`}
+                value={`control restart session ${s.polecat} ${s.rig}`}
+                onSelect={() => runControl(`Restarted ${s.polecat}`, `/control/session/${encodeURIComponent(s.rig)}/${encodeURIComponent(s.polecat)}/restart`)}
+              >
+                <RotateCw className="mr-2 h-3.5 w-3.5 text-zinc-400" />
+                Restart session {s.polecat}
+                <span className="ml-auto text-xs text-zinc-600">{s.rig}</span>
               </CommandItem>
             ))}
           </CommandGroup>

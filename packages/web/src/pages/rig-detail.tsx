@@ -5,7 +5,8 @@ import { StatusBadge } from "@/components/status-badge";
 import { InlineStatus } from "@/components/inline-status";
 import { apiPost } from "@/lib/api";
 import type { Rig, Agent, Bead, PolecatStatus, Session } from "@/lib/types";
-import { Server, ArrowLeft, RotateCw } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Server, ArrowLeft, RotateCw, Play, Square, Bomb } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function RigDetailPage() {
@@ -19,6 +20,9 @@ export function RigDetailPage() {
   );
   const { data: sessions, refetch: refetchSessions } = useFetch<Session[]>("/sessions", 10000);
   const [restartingPolecat, setRestartingPolecat] = useState<string | null>(null);
+  const [nukingPolecat, setNukingPolecat] = useState<string | null>(null);
+  const [witnessAction, setWitnessAction] = useState<string | null>(null);
+  const { addToast } = useToast();
 
   const rig = rigs?.find((r) => r.name === name);
   const rigAgents = agents?.filter((a) => a.rig === name) || [];
@@ -34,12 +38,40 @@ export function RigDetailPage() {
     setRestartingPolecat(polecatName);
     try {
       await apiPost(`/sessions/${encodeURIComponent(name || "")}/${encodeURIComponent(polecatName)}/restart`);
+      addToast("Session restarted", "success");
       refetchPolecats();
       refetchSessions();
-    } catch {
-      // silently fail — the UI will reflect actual state on next poll
+    } catch (err: any) {
+      addToast(`Restart failed: ${err.message}`, "error");
     } finally {
       setRestartingPolecat(null);
+    }
+  }
+
+  async function handleWitness(action: "start" | "stop" | "restart") {
+    setWitnessAction(action);
+    try {
+      await apiPost(`/control/witness/${encodeURIComponent(name || "")}/${action}`);
+      addToast(`Witness ${action}ed`, "success");
+    } catch (err: any) {
+      addToast(`Witness ${action} failed: ${err.message}`, "error");
+    } finally {
+      setWitnessAction(null);
+    }
+  }
+
+  async function handleNuke(polecatName: string) {
+    if (!window.confirm(`Nuke polecat ${polecatName}? This is destructive and cannot be undone.`)) return;
+    setNukingPolecat(polecatName);
+    try {
+      await apiPost(`/control/polecat/${encodeURIComponent(name || "")}/${encodeURIComponent(polecatName)}/nuke`, { confirm: true });
+      addToast(`Nuked ${polecatName}`, "success");
+      refetchPolecats();
+      refetchSessions();
+    } catch (err: any) {
+      addToast(`Nuke failed: ${err.message}`, "error");
+    } finally {
+      setNukingPolecat(null);
     }
   }
 
@@ -95,9 +127,36 @@ export function RigDetailPage() {
             <p className="text-lg font-semibold text-zinc-100 tabular-nums">{rig.crew}</p>
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-0.5">Crew</p>
           </div>
-          <div className="rounded-md bg-zinc-900 p-3 text-center">
+          <div className="rounded-md bg-zinc-900 p-3 text-center space-y-2">
             <StatusBadge status={rig.witness} />
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Witness</p>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Witness</p>
+            <div className="flex justify-center gap-1">
+              {rig.witness !== "running" && (
+                <button
+                  onClick={() => handleWitness("start")}
+                  disabled={!!witnessAction}
+                  className="rounded px-1.5 py-0.5 text-[10px] text-emerald-400 border border-emerald-800 hover:bg-emerald-900/50 transition-colors disabled:opacity-50"
+                >
+                  <Play className="h-2.5 w-2.5 inline" /> Start
+                </button>
+              )}
+              {rig.witness === "running" && (
+                <button
+                  onClick={() => handleWitness("stop")}
+                  disabled={!!witnessAction}
+                  className="rounded px-1.5 py-0.5 text-[10px] text-red-400 border border-red-900 hover:bg-red-900/50 transition-colors disabled:opacity-50"
+                >
+                  <Square className="h-2.5 w-2.5 inline" /> Stop
+                </button>
+              )}
+              <button
+                onClick={() => handleWitness("restart")}
+                disabled={!!witnessAction}
+                className="rounded px-1.5 py-0.5 text-[10px] text-zinc-400 border border-zinc-700 hover:bg-zinc-800 transition-colors disabled:opacity-50"
+              >
+                <RotateCw className={cn("h-2.5 w-2.5 inline", witnessAction === "restart" && "animate-spin")} /> Restart
+              </button>
+            </div>
           </div>
           <div className="rounded-md bg-zinc-900 p-3 text-center">
             <StatusBadge status={rig.refinery} />
@@ -173,6 +232,14 @@ export function RigDetailPage() {
                     >
                       <RotateCw className={cn("h-3 w-3", isRestarting && "animate-spin")} />
                       {isRestarting ? "Restarting\u2026" : "Restart Session"}
+                    </button>
+                    <button
+                      onClick={() => handleNuke(pc.name)}
+                      disabled={nukingPolecat === pc.name}
+                      className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-900/30 transition-colors disabled:opacity-50"
+                    >
+                      <Bomb className="h-3 w-3" />
+                      {nukingPolecat === pc.name ? "Nuking\u2026" : "Nuke"}
                     </button>
                     {session && (
                       <Link

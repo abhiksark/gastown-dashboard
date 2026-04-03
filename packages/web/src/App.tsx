@@ -17,6 +17,7 @@ import { SessionsPage } from "@/pages/sessions";
 import { WorkflowsPage } from "@/pages/workflows";
 import { CommandPalette } from "@/components/command-palette";
 import { FeedPage } from "@/pages/feed";
+import { SettingsPage } from "@/pages/settings";
 
 export function App() {
   const toastState = useToastState();
@@ -42,6 +43,7 @@ export function App() {
               <Route path="/mail" element={<MailPage />} />
               <Route path="/workflows" element={<WorkflowsPage />} />
               <Route path="/feed" element={<FeedPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Routes>
           </main>
         </div>

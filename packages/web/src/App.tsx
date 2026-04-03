@@ -2,14 +2,10 @@ import { Routes, Route } from "react-router";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { StatusBar } from "@/components/layout/status-bar";
-
-function Placeholder({ name }: { name: string }) {
-  return (
-    <div className="flex items-center justify-center h-full text-zinc-500">
-      {name} — coming soon
-    </div>
-  );
-}
+import { OverviewPage } from "@/pages/overview";
+import { AgentsPage } from "@/pages/agents";
+import { BeadsPage } from "@/pages/beads";
+import { RigsPage } from "@/pages/rigs";
 
 export function App() {
   return (
@@ -19,10 +15,10 @@ export function App() {
         <Topbar />
         <main className="flex-1 overflow-auto p-6">
           <Routes>
-            <Route path="/" element={<Placeholder name="Overview" />} />
-            <Route path="/agents" element={<Placeholder name="Agents" />} />
-            <Route path="/beads" element={<Placeholder name="Beads" />} />
-            <Route path="/rigs" element={<Placeholder name="Rigs" />} />
+            <Route path="/" element={<OverviewPage />} />
+            <Route path="/agents" element={<AgentsPage />} />
+            <Route path="/beads" element={<BeadsPage />} />
+            <Route path="/rigs" element={<RigsPage />} />
           </Routes>
         </main>
         <StatusBar />

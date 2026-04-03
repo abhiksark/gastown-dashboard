@@ -24,6 +24,7 @@ import { CommandPalette } from "@/components/command-palette";
 import { FeedPage } from "@/pages/feed";
 import { SettingsPage } from "@/pages/settings";
 import { CostsPage } from "@/pages/costs";
+import { AuditPage } from "@/pages/audit";
 
 export function App() {
   const toastState = useToastState();
@@ -56,6 +57,7 @@ export function App() {
               <Route path="/workflows" element={<WorkflowsPage />} />
               <Route path="/feed" element={<FeedPage />} />
               <Route path="/costs" element={<CostsPage />} />
+              <Route path="/audit" element={<AuditPage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Routes>
           </main>

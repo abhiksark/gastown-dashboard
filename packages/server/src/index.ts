@@ -18,10 +18,13 @@ import settingsRoutes from "./routes/settings.js";
 import costsRoutes from "./routes/costs.js";
 import metricsRoutes from "./routes/metrics.js";
 import anomaliesRoutes from "./routes/anomalies.js";
+import { auditLogger } from "./audit.js";
+import auditRoutes from "./routes/audit.js";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(auditLogger);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", ts: new Date().toISOString() });
@@ -45,6 +48,7 @@ app.use("/api/settings", settingsRoutes);
 app.use("/api/costs", costsRoutes);
 app.use("/api/metrics", metricsRoutes);
 app.use("/api/anomalies", anomaliesRoutes);
+app.use("/api/audit", auditRoutes);
 
 const PORT = process.env.PORT || 4800;
 app.listen(PORT, () => {

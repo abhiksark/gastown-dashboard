@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import overviewRoutes from "./routes/overview.js";
 import rigsRoutes from "./routes/rigs.js";
 import agentsRoutes from "./routes/agents.js";
@@ -51,8 +53,24 @@ app.use("/api/metrics", metricsRoutes);
 app.use("/api/anomalies", anomaliesRoutes);
 app.use("/api/audit", auditRoutes);
 
-const PORT = process.env.PORT || 4800;
-const server = app.listen(PORT, () => {
-  console.log(`[gastown-server] listening on :${PORT}`);
-});
-attachTerminalWS(server);
+// In production, serve built frontend static files
+if (process.env.NODE_ENV === "production") {
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const publicDir = process.env.GASTOWN_PUBLIC_DIR || path.resolve(__dirname, "../../dist/public");
+  app.use(express.static(publicDir));
+  app.get("*", (_req, res) => {
+    res.sendFile(path.join(publicDir, "index.html"));
+  });
+}
+
+export { app, attachTerminalWS };
+
+// Only auto-listen when run directly (not imported by CLI)
+const isDirectRun = process.argv[1]?.endsWith("index.ts") || process.argv[1]?.endsWith("index.js");
+if (isDirectRun) {
+  const PORT = process.env.PORT || 4800;
+  const server = app.listen(PORT, () => {
+    console.log(`[gastown-server] listening on :${PORT}`);
+  });
+  attachTerminalWS(server);
+}

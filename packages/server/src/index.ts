@@ -17,6 +17,7 @@ import controlRoutes from "./routes/control.js";
 import settingsRoutes from "./routes/settings.js";
 import costsRoutes from "./routes/costs.js";
 import metricsRoutes from "./routes/metrics.js";
+import anomaliesRoutes from "./routes/anomalies.js";
 
 const app = express();
 app.use(cors());
@@ -43,6 +44,7 @@ app.use("/api/control", controlRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/costs", costsRoutes);
 app.use("/api/metrics", metricsRoutes);
+app.use("/api/anomalies", anomaliesRoutes);
 
 const PORT = process.env.PORT || 4800;
 app.listen(PORT, () => {

@@ -200,6 +200,23 @@ export interface CostSummary {
   period?: string;
 }
 
+// From /api/anomalies
+export interface Anomaly {
+  id: string;
+  type: "stuck_agent" | "high_error_rate" | "zombie_session" | "overloaded_rig";
+  severity: "critical" | "high" | "medium";
+  description: string;
+  affected: string;
+  detected_at: string;
+  suggested_action: string;
+}
+
+// From /api/anomalies/heatmap
+export interface HeatmapDay {
+  date: string;
+  count: number;
+}
+
 // From `gt mol current --json`
 export interface MoleculeStatus {
   identity: string;

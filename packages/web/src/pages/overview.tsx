@@ -3,17 +3,44 @@ import { useRealtime } from "@/hooks/use-realtime";
 import { StatusBadge } from "@/components/status-badge";
 import { SystemHealthStrip } from "@/components/system-health-strip";
 import { LiveFeed } from "@/components/live-feed";
+import { ActivityHeatmap } from "@/components/activity-heatmap";
 import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import type { Overview as OverviewData, Escalation } from "@/lib/types";
-import { AlertTriangle } from "lucide-react";
+import type { Overview as OverviewData, Escalation, Anomaly } from "@/lib/types";
+import { AlertTriangle, Bug, Zap, Ghost, Server } from "lucide-react";
 import { useState } from "react";
 
 export function OverviewPage() {
   const { data, loading, error } = useRealtime<OverviewData>("/overview", 5000);
   const { data: escalations } = useRealtime<Escalation[]>("/escalations", 10000);
+  const { data: anomalies } = useRealtime<Anomaly[]>("/anomalies", 30000);
   const { addToast } = useToast();
   const [acting, setActing] = useState<string | null>(null);
+
+  const anomalyIcon = (type: Anomaly["type"]) => {
+    switch (type) {
+      case "stuck_agent": return Zap;
+      case "high_error_rate": return Bug;
+      case "zombie_session": return Ghost;
+      case "overloaded_rig": return Server;
+    }
+  };
+
+  const anomalySeverityColor = (severity: Anomaly["severity"]) => {
+    switch (severity) {
+      case "critical": return "border-red-500/20 bg-red-500/5";
+      case "high": return "border-orange-500/20 bg-orange-500/5";
+      case "medium": return "border-amber-500/20 bg-amber-500/5";
+    }
+  };
+
+  const anomalyIconColor = (severity: Anomaly["severity"]) => {
+    switch (severity) {
+      case "critical": return "text-red-400";
+      case "high": return "text-orange-400";
+      case "medium": return "text-amber-400";
+    }
+  };
 
   const openEscalations = (escalations || []).filter((e) => e.status === "open");
 
@@ -108,7 +135,34 @@ export function OverviewPage() {
         </div>
       )}
 
-      {/* 3. Compact Inline Stat Row */}
+      {/* 3. Anomaly Alerts */}
+      {anomalies && anomalies.length > 0 && (
+        <div className="space-y-2">
+          {anomalies.slice(0, 3).map((a) => {
+            const Icon = anomalyIcon(a.type);
+            return (
+              <div
+                key={a.id}
+                className={`flex items-center justify-between rounded-lg border px-4 py-2.5 ${anomalySeverityColor(a.severity)}`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <Icon className={`h-3.5 w-3.5 shrink-0 ${anomalyIconColor(a.severity)}`} />
+                  <span className="text-xs text-zinc-200 truncate">{a.description}</span>
+                  <StatusBadge status={a.severity} />
+                </div>
+                <span className="text-[10px] text-zinc-500 shrink-0 ml-3">{a.suggested_action}</span>
+              </div>
+            );
+          })}
+          {anomalies.length > 3 && (
+            <span className="text-xs text-zinc-500">
+              +{anomalies.length - 3} more anomal{anomalies.length - 3 !== 1 ? "ies" : "y"}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* 4. Compact Inline Stat Row */}
       <div className="flex items-center gap-3 text-xs px-1">
         <span className="text-zinc-400">{data.rigs.total} Rigs</span>
         <span className="text-zinc-700">|</span>
@@ -130,7 +184,10 @@ export function OverviewPage() {
         </span>
       </div>
 
-      {/* 4. Two-column: LiveFeed | Rig Health */}
+      {/* 5. Activity Heatmap */}
+      <ActivityHeatmap />
+
+      {/* 6. Two-column: LiveFeed | Rig Health */}
       <div className="grid grid-cols-2 gap-6">
         <LiveFeed />
         <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] overflow-hidden">

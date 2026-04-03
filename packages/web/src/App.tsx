@@ -12,6 +12,7 @@ import { ConvoysPage } from "@/pages/convoys";
 import { RefineryPage } from "@/pages/refinery";
 import { EscalationsPage } from "@/pages/escalations";
 import { MailPage } from "@/pages/mail";
+import { RigDetailPage } from "@/pages/rig-detail";
 
 export function App() {
   const toastState = useToastState();
@@ -28,6 +29,7 @@ export function App() {
               <Route path="/agents" element={<AgentsPage />} />
               <Route path="/beads" element={<BeadsPage />} />
               <Route path="/rigs" element={<RigsPage />} />
+              <Route path="/rigs/:name" element={<RigDetailPage />} />
               <Route path="/convoys" element={<ConvoysPage />} />
               <Route path="/refinery" element={<RefineryPage />} />
               <Route path="/escalations" element={<EscalationsPage />} />

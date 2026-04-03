@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
 import type { Rig } from "@/lib/types";
@@ -5,6 +6,7 @@ import { Server } from "lucide-react";
 
 export function RigsPage() {
   const { data, loading, error } = useFetch<Rig[]>("/rigs", 10000);
+  const navigate = useNavigate();
 
   if (error) return <div className="text-red-400 text-sm">Failed to load rigs: {error}</div>;
 
@@ -16,7 +18,7 @@ export function RigsPage() {
       ) : data && data.length > 0 ? (
         <div className="grid grid-cols-2 gap-4">
           {data.map((rig) => (
-            <div key={rig.name} className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-5 hover:bg-[var(--color-card-hover)] transition-colors">
+            <div key={rig.name} onClick={() => navigate(`/rigs/${rig.name}`)} className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-5 hover:bg-[var(--color-card-hover)] transition-colors cursor-pointer">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className="rounded-md bg-zinc-800 p-2"><Server className="h-4 w-4 text-zinc-400" /></div>

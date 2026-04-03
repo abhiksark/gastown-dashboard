@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
 import { apiPost, apiFetch } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { Agent } from "@/lib/types";
-import { X, Users } from "lucide-react";
+import { X } from "lucide-react";
 
 interface HookInfo {
   agent: string;
@@ -98,7 +99,7 @@ export function AgentsPage() {
                     >
                       <td className="px-4 py-3"><div className="flex items-center gap-2"><span className="text-base">{agent.icon}</span><span className="text-zinc-200 font-medium">{agent.name}</span></div></td>
                       <td className="px-4 py-3"><StatusBadge status={agent.role} /></td>
-                      <td className="px-4 py-3 text-zinc-400">{agent.rig || "\u2014"}</td>
+                      <td className="px-4 py-3">{agent.rig ? <Link to={`/rigs/${agent.rig}`} onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-zinc-100 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors">{agent.rig}</Link> : <span className="text-zinc-400">{"\u2014"}</span>}</td>
                       <td className="px-4 py-3 text-right">
                         <button
                           onClick={(e) => { e.stopPropagation(); handleNudge(target); }}

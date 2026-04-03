@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
 import type { Convoy } from "@/lib/types";
@@ -89,15 +90,19 @@ export function ConvoysPage() {
                 {convoy.beads && convoy.beads.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-[var(--color-border)] space-y-1.5">
                     {convoy.beads.map((b) => (
-                      <div
+                      <Link
                         key={b.id}
-                        className="flex items-center justify-between text-xs"
+                        to="/beads"
+                        className="flex items-center justify-between text-xs hover:bg-zinc-800/50 rounded px-1 -mx-1 py-0.5 transition-colors"
                       >
-                        <span className="text-zinc-400 truncate max-w-[60%]">
+                        <span className="text-zinc-400 truncate max-w-[50%]">
                           {b.title}
                         </span>
-                        <StatusBadge status={b.status} />
-                      </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-zinc-600">{b.id}</span>
+                          <StatusBadge status={b.status} />
+                        </div>
+                      </Link>
                     ))}
                   </div>
                 )}

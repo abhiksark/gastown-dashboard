@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTableKeyboard } from "@/hooks/use-keyboard";
 import { Link } from "react-router";
 import { useRealtime } from "@/hooks/use-realtime";
 import { StatusBadge } from "@/components/status-badge";
@@ -60,9 +61,20 @@ export function AgentsPage() {
       ]
     : [];
 
-  const filtered = data
-    ? roleFilter === "all" ? data : data.filter((a) => a.role === roleFilter)
-    : [];
+  const filtered = useMemo(() =>
+    data ? (roleFilter === "all" ? data : data.filter((a) => a.role === roleFilter)) : [],
+    [data, roleFilter]
+  );
+
+  useTableKeyboard({
+    onMove: useCallback((delta: number) => {
+      if (filtered.length === 0) return;
+      const currentIdx = selected ? filtered.findIndex((a) => a.name === selected.name && a.rig === selected.rig) : -1;
+      const next = Math.max(0, Math.min(filtered.length - 1, currentIdx + delta));
+      setSelected(filtered[next]);
+    }, [filtered, selected]),
+    onEscape: useCallback(() => setSelected(null), []),
+  });
 
   useEffect(() => {
     if (!selected) {

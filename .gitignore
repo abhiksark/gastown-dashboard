@@ -3,6 +3,12 @@ dist
 .turbo
 *.tsbuildinfo
 CLAUDE.md
+
+# Gas Town (added by gt)
 .beads/
-.claude/
 .runtime/
+.claude/
+.logs/
+__pycache__/
+state.json
+CLAUDE.local.md

@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
 import type { Bead } from "@/lib/types";
+import { X, CircleDot } from "lucide-react";
 
 type SortKey = "priority" | "updated_at" | "created_at" | "status";
 
@@ -10,6 +11,7 @@ export function BeadsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("priority");
   const [sortAsc, setSortAsc] = useState(true);
+  const [selected, setSelected] = useState<Bead | null>(null);
 
   const statuses = ["all", "open", "hooked", "in_progress", "completed", "done"];
 
@@ -25,6 +27,16 @@ export function BeadsPage() {
     });
     return result;
   }, [data, statusFilter, sortKey, sortAsc]);
+
+  // Compute filter counts
+  const counts = useMemo(() => {
+    if (!data) return {};
+    const c: Record<string, number> = { all: data.length };
+    for (const b of data) {
+      c[b.status] = (c[b.status] || 0) + 1;
+    }
+    return c;
+  }, [data]);
 
   function handleSort(key: SortKey) {
     if (sortKey === key) setSortAsc(!sortAsc);
@@ -48,48 +60,161 @@ export function BeadsPage() {
         <div className="flex gap-1">
           {statuses.map((s) => (
             <button key={s} onClick={() => setStatusFilter(s)}
-              className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${statusFilter === s ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-600" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"}`}>{s}</button>
+              className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${statusFilter === s ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-600" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"}`}>
+              {s}{counts[s] !== undefined ? ` (${counts[s]})` : ""}
+            </button>
           ))}
         </div>
       </div>
       {loading ? (
         <div className="space-y-2">{[...Array(4)].map((_, i) => <div key={i} className="h-14 rounded-lg skeleton" />)}</div>
       ) : (
-        <div className="rounded-lg border border-[var(--color-border)] overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[var(--color-border)] bg-[var(--color-card)]">
-                <th className="text-left font-medium text-zinc-400 px-4 py-3">ID</th>
-                <th className="text-left font-medium text-zinc-400 px-4 py-3">Title</th>
-                <th className="text-left font-medium text-zinc-400 px-4 py-3">Status</th>
-                {sortHeader("Priority", "priority")}
-                <th className="text-left font-medium text-zinc-400 px-4 py-3">Assignee</th>
-                {sortHeader("Updated", "updated_at")}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((bead) => (
-                <tr key={bead.id} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors">
-                  <td className="px-4 py-3 font-mono text-xs text-zinc-500">{bead.id}</td>
-                  <td className="px-4 py-3">
-                    <div>
-                      <p className="text-zinc-200 font-medium truncate max-w-md">{bead.title}</p>
-                      {bead.labels && bead.labels.length > 0 && (
-                        <div className="flex gap-1 mt-1">
-                          {bead.labels.map((l) => <span key={l} className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-400">{l}</span>)}
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3"><StatusBadge status={bead.status} /></td>
-                  <td className="px-4 py-3 text-zinc-400 tabular-nums">P{bead.priority}</td>
-                  <td className="px-4 py-3 text-zinc-400 text-xs">{bead.assignee || "\u2014"}</td>
-                  <td className="px-4 py-3 text-zinc-500 text-xs">{new Date(bead.updated_at).toLocaleDateString()}</td>
+        <div className="flex gap-4">
+          {/* Table */}
+          <div className="flex-1 rounded-lg border border-[var(--color-border)] overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[var(--color-border)] bg-[var(--color-card)]">
+                  <th className="text-left font-medium text-zinc-400 px-4 py-3">ID</th>
+                  <th className="text-left font-medium text-zinc-400 px-4 py-3">Title</th>
+                  <th className="text-left font-medium text-zinc-400 px-4 py-3">Status</th>
+                  {sortHeader("Priority", "priority")}
+                  <th className="text-left font-medium text-zinc-400 px-4 py-3">Assignee</th>
+                  {sortHeader("Updated", "updated_at")}
                 </tr>
-              ))}
-              {filtered.length === 0 && <tr><td colSpan={6} className="px-4 py-8 text-center text-zinc-600">No beads found</td></tr>}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((bead) => (
+                  <tr
+                    key={bead.id}
+                    onClick={() => setSelected(bead)}
+                    className={`border-b border-[var(--color-border)] cursor-pointer transition-colors ${
+                      selected?.id === bead.id
+                        ? "bg-blue-500/5"
+                        : "hover:bg-[var(--color-card-hover)]"
+                    }`}
+                  >
+                    <td className="px-4 py-3 font-mono text-xs text-zinc-500">{bead.id}</td>
+                    <td className="px-4 py-3">
+                      <div>
+                        <p className="text-zinc-200 font-medium truncate max-w-md">{bead.title}</p>
+                        {bead.labels && bead.labels.length > 0 && (
+                          <div className="flex gap-1 mt-1">
+                            {bead.labels.map((l) => <span key={l} className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-400">{l}</span>)}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3"><StatusBadge status={bead.status} /></td>
+                    <td className="px-4 py-3 text-zinc-400 tabular-nums">P{bead.priority}</td>
+                    <td className="px-4 py-3 text-zinc-400 text-xs">{bead.assignee || "\u2014"}</td>
+                    <td className="px-4 py-3 text-zinc-500 text-xs">{new Date(bead.updated_at).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && <tr><td colSpan={6} className="px-4 py-8 text-center text-zinc-600">No beads found</td></tr>}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Detail panel */}
+          {selected && (
+            <div className="w-96 shrink-0 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] overflow-hidden flex flex-col" style={{ maxHeight: "calc(100vh - 200px)" }}>
+              {/* Header */}
+              <div className="px-5 py-4 border-b border-[var(--color-border)]">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <CircleDot className="h-4 w-4 text-zinc-400 shrink-0" />
+                    <span className="font-mono text-xs text-zinc-500">{selected.id}</span>
+                  </div>
+                  <button
+                    onClick={() => setSelected(null)}
+                    className="p-1 rounded-md text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <h3 className="text-sm font-semibold text-zinc-100 mt-2">{selected.title}</h3>
+              </div>
+
+              {/* Metadata */}
+              <div className="px-5 py-3 border-b border-[var(--color-border)] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-500">Status</span>
+                  <StatusBadge status={selected.status} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-500">Priority</span>
+                  <span className="text-xs text-zinc-300 tabular-nums">P{selected.priority}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-500">Type</span>
+                  <span className="text-xs text-zinc-300">{selected.issue_type}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-500">Assignee</span>
+                  <span className="text-xs text-zinc-300">{selected.assignee || "\u2014"}</span>
+                </div>
+                {selected.owner && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-zinc-500">Owner</span>
+                    <span className="text-xs text-zinc-300">{selected.owner}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-500">Created</span>
+                  <span className="text-xs text-zinc-300">{new Date(selected.created_at).toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-500">Updated</span>
+                  <span className="text-xs text-zinc-300">{new Date(selected.updated_at).toLocaleString()}</span>
+                </div>
+                {selected.created_by && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-zinc-500">Created by</span>
+                    <span className="text-xs text-zinc-300">{selected.created_by}</span>
+                  </div>
+                )}
+                {selected.dependency_count > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-zinc-500">Dependencies</span>
+                    <span className="text-xs text-zinc-300">{selected.dependency_count}</span>
+                  </div>
+                )}
+                {selected.dependent_count > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-zinc-500">Dependents</span>
+                    <span className="text-xs text-zinc-300">{selected.dependent_count}</span>
+                  </div>
+                )}
+                {selected.comment_count > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-zinc-500">Comments</span>
+                    <span className="text-xs text-zinc-300">{selected.comment_count}</span>
+                  </div>
+                )}
+                {selected.labels && selected.labels.length > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-zinc-500">Labels</span>
+                    <div className="flex gap-1 flex-wrap justify-end">
+                      {selected.labels.map((l) => (
+                        <span key={l} className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-400">{l}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Description */}
+              <div className="flex-1 overflow-y-auto px-5 py-4">
+                <h4 className="text-xs font-medium uppercase tracking-wider text-zinc-500 mb-2">Description</h4>
+                {selected.description ? (
+                  <pre className="text-xs text-zinc-300 whitespace-pre-wrap font-sans leading-relaxed">{selected.description}</pre>
+                ) : (
+                  <p className="text-xs text-zinc-600">No description</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

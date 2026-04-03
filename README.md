@@ -4,6 +4,12 @@ A real-time monitoring and control panel for [Gas Town](https://github.com/anthr
 
 ![Overview](docs/screenshots/overview.png)
 
+## How Gas Town Works
+
+<p align="center">
+  <img src="docs/gastown-workflow.svg" alt="Gas Town Workflow" width="680" />
+</p>
+
 ## What is this?
 
 Gas Town orchestrates dozens of AI agents (polecats, witnesses, refineries, deacons) across multiple rigs, each working on beads (issues) through molecules (workflows). This dashboard gives you full visibility and control over the entire system from a single browser tab.

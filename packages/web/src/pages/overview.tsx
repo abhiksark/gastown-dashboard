@@ -46,7 +46,12 @@ export function OverviewPage() {
               <Link key={rig.name} to={`/rigs/${rig.name}`} className="flex items-center justify-between rounded-md border border-[var(--color-border)] p-3 hover:bg-[var(--color-card-hover)] transition-colors">
                 <div>
                   <p className="text-sm font-medium text-zinc-200">{rig.name}</p>
-                  <p className="text-xs text-zinc-500 mt-0.5">{rig.beads_prefix} prefix &middot; {rig.crew} crew &middot; {rig.polecats} polecats</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    {rig.beads_prefix} prefix &middot; {rig.crew} crew &middot;{" "}
+                    <span className={rig.polecats > 0 ? "text-blue-400 font-medium" : "text-zinc-500"}>
+                      {rig.polecats} polecat{rig.polecats !== 1 ? "s" : ""}
+                    </span>
+                  </p>
                 </div>
                 <div className="flex gap-2">
                   <StatusBadge status={rig.witness} />

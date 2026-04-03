@@ -50,6 +50,17 @@ router.get("/polecats/:rig/:name", async (req, res) => {
   }
 });
 
+// POST /api/sessions/:rig/:name/restart — restart a polecat session
+router.post("/:rig/:name/restart", async (req, res) => {
+  try {
+    const target = `${req.params.rig}/polecats/${req.params.name}`;
+    const data = await runCli("gt", ["session", "restart", target, "--json"], 10000);
+    res.json(data ?? { status: "restarted" });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/witness/:rig — witness health for a rig
 router.get("/witness/:rig", async (req, res) => {
   try {

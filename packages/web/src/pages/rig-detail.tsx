@@ -1,19 +1,46 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
-import type { Rig, Agent, Bead } from "@/lib/types";
-import { Server, ArrowLeft } from "lucide-react";
+import { apiPost } from "@/lib/api";
+import type { Rig, Agent, Bead, PolecatStatus, Session } from "@/lib/types";
+import { Server, ArrowLeft, RotateCw } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function RigDetailPage() {
   const { name } = useParams<{ name: string }>();
   const { data: rigs, loading: rigsLoading } = useFetch<Rig[]>("/rigs", 10000);
   const { data: agents, loading: agentsLoading } = useFetch<Agent[]>("/agents", 10000);
   const { data: beads, loading: beadsLoading } = useFetch<Bead[]>("/beads", 10000);
+  const { data: polecats, loading: polecatsLoading, refetch: refetchPolecats } = useFetch<PolecatStatus[]>(
+    `/sessions/polecats/${encodeURIComponent(name || "")}`,
+    10000
+  );
+  const { data: sessions, refetch: refetchSessions } = useFetch<Session[]>("/sessions", 10000);
+  const [restartingPolecat, setRestartingPolecat] = useState<string | null>(null);
 
   const rig = rigs?.find((r) => r.name === name);
   const rigAgents = agents?.filter((a) => a.rig === name) || [];
   const rigBeads = beads?.filter((b) => b.assignee?.includes(name || "")) || [];
+  const rigSessions = sessions?.filter((s) => s.rig === name) || [];
   const loading = rigsLoading || agentsLoading || beadsLoading;
+
+  function getSessionForPolecat(polecatName: string): Session | undefined {
+    return rigSessions.find((s) => s.polecat === polecatName);
+  }
+
+  async function handleRestart(polecatName: string) {
+    setRestartingPolecat(polecatName);
+    try {
+      await apiPost(`/sessions/${encodeURIComponent(name || "")}/${encodeURIComponent(polecatName)}/restart`);
+      refetchPolecats();
+      refetchSessions();
+    } catch {
+      // silently fail — the UI will reflect actual state on next poll
+    } finally {
+      setRestartingPolecat(null);
+    }
+  }
 
   if (loading) {
     return (
@@ -76,6 +103,90 @@ export function RigDetailPage() {
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Refinery</p>
           </div>
         </div>
+      </div>
+
+      {/* Polecats on this rig */}
+      <div>
+        <h3 className="text-sm font-semibold text-zinc-100 mb-3">Polecats ({polecats?.length ?? 0})</h3>
+        {polecatsLoading ? (
+          <div className="h-24 rounded-lg skeleton" />
+        ) : !polecats || polecats.length === 0 ? (
+          <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-8 text-center">
+            <p className="text-xs text-zinc-600">No polecats spawned. Sling work to this rig to auto-spawn one.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {polecats.map((pc) => {
+              const session = getSessionForPolecat(pc.name);
+              const sessionRunning = session?.running ?? pc.session_running;
+              const isRestarting = restartingPolecat === pc.name;
+              return (
+                <div
+                  key={pc.name}
+                  className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4 space-y-3"
+                >
+                  {/* Polecat header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className={cn(
+                        "h-2 w-2 rounded-full shrink-0",
+                        sessionRunning ? "bg-emerald-500" : "bg-red-500"
+                      )} />
+                      <span className="text-sm font-medium text-zinc-200">{pc.name}</span>
+                    </div>
+                    <StatusBadge status={pc.state} />
+                  </div>
+
+                  {/* Details */}
+                  <div className="space-y-1.5 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Assigned bead</span>
+                      {pc.assigned_bead ? (
+                        <Link to="/beads" className="text-blue-400 hover:text-blue-300 font-mono transition-colors">
+                          {pc.assigned_bead}
+                        </Link>
+                      ) : (
+                        <span className="text-zinc-600">&mdash;</span>
+                      )}
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Session</span>
+                      <span className={sessionRunning ? "text-emerald-400" : "text-red-400"}>
+                        {sessionRunning ? "running" : "stopped"}
+                      </span>
+                    </div>
+                    {pc.last_activity && (
+                      <div className="flex justify-between">
+                        <span className="text-zinc-500">Last activity</span>
+                        <span className="text-zinc-400">{new Date(pc.last_activity).toLocaleTimeString()}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 pt-1 border-t border-[var(--color-border)]">
+                    <button
+                      onClick={() => handleRestart(pc.name)}
+                      disabled={isRestarting}
+                      className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors disabled:opacity-50"
+                    >
+                      <RotateCw className={cn("h-3 w-3", isRestarting && "animate-spin")} />
+                      {isRestarting ? "Restarting\u2026" : "Restart Session"}
+                    </button>
+                    {session && (
+                      <Link
+                        to="/sessions"
+                        className="ml-auto text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                      >
+                        View session
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Agents on this rig */}

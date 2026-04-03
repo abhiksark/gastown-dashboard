@@ -25,6 +25,13 @@ const variants: Record<string, string> = {
   low: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
   paused: "bg-amber-500/10 text-amber-400 border-amber-500/20",
   resolved: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  workflow: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  convoy: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+  expansion: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  aspect: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  naked: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+  active: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  empty: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
 };
 
 interface StatusBadgeProps {

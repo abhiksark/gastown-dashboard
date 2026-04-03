@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatCard } from "@/components/stat-card";
 import { StatusBadge } from "@/components/status-badge";
@@ -42,7 +43,7 @@ export function OverviewPage() {
           </div>
           <div className="p-4 space-y-3">
             {data.rigs.items.map((rig) => (
-              <div key={rig.name} className="flex items-center justify-between rounded-md border border-[var(--color-border)] p-3">
+              <Link key={rig.name} to={`/rigs/${rig.name}`} className="flex items-center justify-between rounded-md border border-[var(--color-border)] p-3 hover:bg-[var(--color-card-hover)] transition-colors">
                 <div>
                   <p className="text-sm font-medium text-zinc-200">{rig.name}</p>
                   <p className="text-xs text-zinc-500 mt-0.5">{rig.beads_prefix} prefix &middot; {rig.crew} crew &middot; {rig.polecats} polecats</p>
@@ -51,7 +52,7 @@ export function OverviewPage() {
                   <StatusBadge status={rig.witness} />
                   <StatusBadge status={rig.status} />
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

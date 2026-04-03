@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
 import type { Bead } from "@/lib/types";
@@ -107,7 +108,7 @@ export function BeadsPage() {
                     </td>
                     <td className="px-4 py-3"><StatusBadge status={bead.status} /></td>
                     <td className="px-4 py-3 text-zinc-400 tabular-nums">P{bead.priority}</td>
-                    <td className="px-4 py-3 text-zinc-400 text-xs">{bead.assignee || "\u2014"}</td>
+                    <td className="px-4 py-3 text-xs">{bead.assignee ? <Link to="/agents" onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-zinc-100 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors">{bead.assignee}</Link> : <span className="text-zinc-400">{"\u2014"}</span>}</td>
                     <td className="px-4 py-3 text-zinc-500 text-xs">{new Date(bead.updated_at).toLocaleDateString()}</td>
                   </tr>
                 ))}

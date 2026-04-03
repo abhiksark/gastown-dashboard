@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
 import { apiPost } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 import type { Escalation } from "@/lib/types";
 import { AlertTriangle, CheckCircle } from "lucide-react";
 
@@ -12,6 +13,7 @@ export function EscalationsPage() {
   );
   const [acting, setActing] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const { addToast } = useToast();
 
   const statuses = ["all", "open", "acknowledged", "resolved", "closed"];
 
@@ -40,9 +42,10 @@ export function EscalationsPage() {
     setActing(id);
     try {
       await apiPost(`/escalations/${id}/ack`);
+      addToast("Escalation acknowledged", "success");
       refetch();
     } catch {
-      // ack may fail if already acknowledged
+      addToast("Failed to acknowledge escalation", "error");
     } finally {
       setActing(null);
     }
@@ -54,9 +57,10 @@ export function EscalationsPage() {
       await apiPost(`/escalations/${id}/close`, {
         reason: "Resolved from dashboard",
       });
+      addToast("Escalation resolved", "success");
       refetch();
     } catch {
-      // close may fail
+      addToast("Failed to resolve escalation", "error");
     } finally {
       setActing(null);
     }

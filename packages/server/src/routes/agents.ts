@@ -55,6 +55,15 @@ router.get("/:name/feed", async (req, res) => {
   }
 });
 
+router.get("/:name/hook", async (req, res) => {
+  try {
+    const data = await runCli("gt", ["hook", "show", req.params.name, "--json"]);
+    res.json(data ?? { agent: req.params.name, status: "empty" });
+  } catch (err: any) {
+    res.json({ agent: req.params.name, status: "empty" });
+  }
+});
+
 router.post("/:name/nudge", async (req, res) => {
   try {
     const { name } = req.params;

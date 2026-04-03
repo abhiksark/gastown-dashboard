@@ -110,3 +110,24 @@ export interface Escalation {
   closed_at: string | null;
   reason: string | null;
 }
+
+// From `gt mail inbox <address> --json`
+export interface MailMessage {
+  id: string;
+  from: string;
+  to: string;
+  subject: string;
+  body: string;
+  type: string;
+  priority: number;
+  status: string;
+  created_at: string;
+  read: boolean;
+  reply_to: string | null;
+}
+
+// From `gt mail directory`
+export interface MailAddress {
+  address: string;
+  type: string;
+}

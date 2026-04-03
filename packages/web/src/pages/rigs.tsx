@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router";
-import { useFetch } from "@/hooks/use-fetch";
+import { useRealtime } from "@/hooks/use-realtime";
 import { StatusBadge } from "@/components/status-badge";
 import type { Rig } from "@/lib/types";
 import { Server } from "lucide-react";
 
 export function RigsPage() {
-  const { data, loading, error } = useFetch<Rig[]>("/rigs", 10000);
+  const { data, loading, error } = useRealtime<Rig[]>("/rigs", 10000);
   const navigate = useNavigate();
 
   if (error) return <div className="text-red-400 text-sm">Failed to load rigs: {error}</div>;

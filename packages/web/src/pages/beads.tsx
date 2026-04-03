@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { Link } from "react-router";
-import { useFetch } from "@/hooks/use-fetch";
+import { useRealtime } from "@/hooks/use-realtime";
 import { StatusBadge } from "@/components/status-badge";
 import { CreateBeadDialog } from "@/components/create-bead-dialog";
 import { SlingDialog } from "@/components/sling-dialog";
@@ -14,7 +14,7 @@ import { X, CircleDot, Plus, Zap, Copy, Eye } from "lucide-react";
 type SortKey = "priority" | "updated_at" | "created_at" | "status";
 
 export function BeadsPage() {
-  const { data, loading, error, refetch } = useFetch<Bead[]>("/beads?all=true", 10000);
+  const { data, loading, error, refetch } = useRealtime<Bead[]>("/beads?all=true", 10000);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("priority");
   const [sortAsc, setSortAsc] = useState(true);

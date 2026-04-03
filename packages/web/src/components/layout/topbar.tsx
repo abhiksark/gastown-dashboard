@@ -1,12 +1,18 @@
 import { Breadcrumbs } from "./breadcrumbs";
-import { useSSE } from "@/hooks/use-sse";
-import { useFetch } from "@/hooks/use-fetch";
+import { useRealtime, useRealtimeStatus } from "@/hooks/use-realtime";
 import type { Overview } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+const STATUS_CONFIG = {
+  live: { color: "bg-emerald-500", label: "Live" },
+  polling: { color: "bg-amber-500", label: "Polling" },
+  offline: { color: "bg-red-500", label: "Offline" },
+} as const;
+
 export function Topbar() {
-  const { connected } = useSSE("/api/feed/stream");
-  const { data } = useFetch<Overview>("/overview", 10000);
+  const status = useRealtimeStatus();
+  const { data } = useRealtime<Overview>("/overview", 10000);
+  const { color, label } = STATUS_CONFIG[status];
 
   function openPalette() {
     document.dispatchEvent(
@@ -20,13 +26,8 @@ export function Topbar() {
       <div className="ml-auto flex items-center gap-4">
         <div className="flex items-center gap-3 text-xs text-zinc-500">
           <span className="flex items-center gap-1.5">
-            <span
-              className={cn(
-                "h-2 w-2 rounded-full",
-                connected ? "bg-emerald-500" : "bg-red-500"
-              )}
-            />
-            {connected ? "Live" : "Offline"}
+            <span className={cn("h-2 w-2 rounded-full", color)} />
+            {label}
           </span>
           {data && (
             <>

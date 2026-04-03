@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useFetch } from "@/hooks/use-fetch";
+import { useRealtime } from "@/hooks/use-realtime";
 import { InlineStatus } from "@/components/inline-status";
 import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -7,7 +7,7 @@ import type { Session } from "@/lib/types";
 import { Terminal, Activity, CircleOff, RotateCw, Bomb } from "lucide-react";
 
 export function SessionsPage() {
-  const { data, loading, error, refetch } = useFetch<Session[]>("/sessions", 5000);
+  const { data, loading, error, refetch } = useRealtime<Session[]>("/sessions", 5000);
   const [restarting, setRestarting] = useState<string | null>(null);
   const [nuking, setNuking] = useState<string | null>(null);
   const { addToast } = useToast();

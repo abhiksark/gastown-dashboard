@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useFetch } from "@/hooks/use-fetch";
+import { useRealtime } from "@/hooks/use-realtime";
 import { StatusBadge } from "@/components/status-badge";
 import { InlineConfirm } from "@/components/inline-confirm";
 import { apiPost } from "@/lib/api";
@@ -8,7 +8,7 @@ import type { Escalation } from "@/lib/types";
 import { AlertTriangle, CheckCircle } from "lucide-react";
 
 export function EscalationsPage() {
-  const { data, loading, error, refetch } = useFetch<Escalation[]>(
+  const { data, loading, error, refetch } = useRealtime<Escalation[]>(
     "/escalations",
     10000
   );

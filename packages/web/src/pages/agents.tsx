@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router";
-import { useFetch } from "@/hooks/use-fetch";
+import { useRealtime } from "@/hooks/use-realtime";
 import { StatusBadge } from "@/components/status-badge";
 import { InlineStatus } from "@/components/inline-status";
 import { apiPost, apiFetch } from "@/lib/api";
@@ -18,8 +18,8 @@ interface HookInfo {
 }
 
 export function AgentsPage() {
-  const { data, loading, error, refetch } = useFetch<Agent[]>("/agents", 10000);
-  const { data: sessions } = useFetch<Session[]>("/sessions", 10000);
+  const { data, loading, error, refetch } = useRealtime<Agent[]>("/agents", 10000);
+  const { data: sessions } = useRealtime<Session[]>("/sessions", 10000);
   const [nudging, setNudging] = useState<string | null>(null);
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [selected, setSelected] = useState<Agent | null>(null);

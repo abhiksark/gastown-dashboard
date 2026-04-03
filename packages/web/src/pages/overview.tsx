@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { useFetch } from "@/hooks/use-fetch";
+import { useRealtime } from "@/hooks/use-realtime";
 import { StatusBadge } from "@/components/status-badge";
 import { SystemHealthStrip } from "@/components/system-health-strip";
 import { LiveFeed } from "@/components/live-feed";
@@ -10,8 +10,8 @@ import { AlertTriangle } from "lucide-react";
 import { useState } from "react";
 
 export function OverviewPage() {
-  const { data, loading, error } = useFetch<OverviewData>("/overview", 5000);
-  const { data: escalations } = useFetch<Escalation[]>("/escalations", 10000);
+  const { data, loading, error } = useRealtime<OverviewData>("/overview", 5000);
+  const { data: escalations } = useRealtime<Escalation[]>("/escalations", 10000);
   const { addToast } = useToast();
   const [acting, setActing] = useState<string | null>(null);
 

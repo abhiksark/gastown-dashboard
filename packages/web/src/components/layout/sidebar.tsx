@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink } from "react-router";
 import { cn } from "@/lib/utils";
 import { useFetch } from "@/hooks/use-fetch";
-import { LayoutDashboard, Users, Terminal, CircleDot, Server, Truck, GitMerge, AlertTriangle, Mail, FlaskConical, Activity, PanelLeftClose, PanelLeft } from "lucide-react";
+import { LayoutDashboard, Users, Terminal, CircleDot, Server, Truck, GitMerge, AlertTriangle, Mail, FlaskConical, Activity, PanelLeftClose, PanelLeft, Settings } from "lucide-react";
 import type { Escalation } from "@/lib/types";
 
 interface NavItem {
@@ -75,44 +75,60 @@ export function Sidebar() {
           {collapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
         </button>
       </div>
-      <nav className="flex-1 py-1 px-2">
-        {navGroups.map((group) => (
-          <div key={group.label} className="pt-4">
-            {!collapsed && (
-              <div className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
-                {group.label}
+      <nav className="flex-1 py-1 px-2 flex flex-col">
+        <div className="flex-1">
+          {navGroups.map((group) => (
+            <div key={group.label} className="pt-4">
+              {!collapsed && (
+                <div className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
+                  {group.label}
+                </div>
+              )}
+              {collapsed && <div className="pt-4 first:pt-0" />}
+              <div className="space-y-0.5">
+                {group.items.map(({ to, label, icon: Icon, end, badge }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={end}
+                    className={({ isActive }) => cn(
+                      "flex items-center gap-3 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors",
+                      isActive
+                        ? "bg-zinc-800 text-zinc-100"
+                        : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"
+                    )}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    {!collapsed && (
+                      <>
+                        <span>{label}</span>
+                        {badge != null && badge > 0 && (
+                          <span className="ml-auto rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold text-white tabular-nums">
+                            {badge}
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </NavLink>
+                ))}
               </div>
-            )}
-            {collapsed && <div className="pt-4 first:pt-0" />}
-            <div className="space-y-0.5">
-              {group.items.map(({ to, label, icon: Icon, end, badge }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  end={end}
-                  className={({ isActive }) => cn(
-                    "flex items-center gap-3 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors",
-                    isActive
-                      ? "bg-zinc-800 text-zinc-100"
-                      : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"
-                  )}
-                >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  {!collapsed && (
-                    <>
-                      <span>{label}</span>
-                      {badge != null && badge > 0 && (
-                        <span className="ml-auto rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold text-white tabular-nums">
-                          {badge}
-                        </span>
-                      )}
-                    </>
-                  )}
-                </NavLink>
-              ))}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        <div className="border-t border-[var(--color-border)] pt-2 pb-2">
+          <NavLink
+            to="/settings"
+            className={({ isActive }) => cn(
+              "flex items-center gap-3 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors",
+              isActive
+                ? "bg-zinc-800 text-zinc-100"
+                : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"
+            )}
+          >
+            <Settings className="h-4 w-4 shrink-0" />
+            {!collapsed && <span>Settings</span>}
+          </NavLink>
+        </div>
       </nav>
     </aside>
   );

@@ -7,6 +7,7 @@ import beadsRoutes from "./routes/beads.js";
 import convoysRoutes from "./routes/convoys.js";
 import refineryRoutes from "./routes/refinery.js";
 import escalationsRoutes from "./routes/escalations.js";
+import mailRoutes from "./routes/mail.js";
 import feedRoutes from "./feed.js";
 
 const app = express();
@@ -24,6 +25,7 @@ app.use("/api/beads", beadsRoutes);
 app.use("/api/convoys", convoysRoutes);
 app.use("/api/refinery", refineryRoutes);
 app.use("/api/escalations", escalationsRoutes);
+app.use("/api/mail", mailRoutes);
 app.use("/api/feed", feedRoutes);
 
 const PORT = process.env.PORT || 4800;

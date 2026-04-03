@@ -86,6 +86,25 @@ export interface ConvoyBead {
   rig: string;
 }
 
+// From /api/convoys/timeline
+export interface TimelineConvoy {
+  id: string;
+  title: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  beads: TimelineBead[];
+}
+
+export interface TimelineBead {
+  id: string;
+  title: string;
+  status: string;
+  assignee: string;
+  created_at: string;
+  updated_at: string;
+}
+
 // From `gt mq list :rig --json`
 export interface MergeRequest {
   id: string;

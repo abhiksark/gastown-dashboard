@@ -1,11 +1,17 @@
+import { useState } from "react";
 import { Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
+import { ConvoyTimeline } from "@/components/convoy-timeline";
 import type { Convoy } from "@/lib/types";
-import { Truck } from "lucide-react";
+import { Truck, LayoutGrid, GanttChart } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+type ViewMode = "cards" | "timeline";
 
 export function ConvoysPage() {
   const { data, loading, error } = useFetch<Convoy[]>("/convoys", 10000);
+  const [view, setView] = useState<ViewMode>("cards");
 
   if (error) {
     return <div className="text-red-400 text-sm">Failed to load convoys: {error}</div>;
@@ -26,9 +32,39 @@ export function ConvoysPage() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Convoys</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Convoys</h2>
+        <div className="flex items-center rounded-md border border-[var(--color-border)] overflow-hidden">
+          <button
+            onClick={() => setView("cards")}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors",
+              view === "cards"
+                ? "bg-zinc-800 text-zinc-100"
+                : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50"
+            )}
+          >
+            <LayoutGrid className="h-3.5 w-3.5" />
+            Cards
+          </button>
+          <button
+            onClick={() => setView("timeline")}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors border-l border-[var(--color-border)]",
+              view === "timeline"
+                ? "bg-zinc-800 text-zinc-100"
+                : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50"
+            )}
+          >
+            <GanttChart className="h-3.5 w-3.5" />
+            Timeline
+          </button>
+        </div>
+      </div>
 
-      {!data || data.length === 0 ? (
+      {view === "timeline" ? (
+        <ConvoyTimeline />
+      ) : !data || data.length === 0 ? (
         <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-12 text-center">
           <Truck className="h-10 w-10 text-zinc-700 mx-auto mb-3" />
           <p className="text-zinc-500 text-sm">No active convoys</p>

@@ -1,12 +1,35 @@
 {
   "name": "gastown-dashboard",
-  "private": true,
-  "packageManager": "pnpm@10.33.0",
+  "version": "0.1.0",
+  "description": "Gas Town Dashboard — monitor and control your Gas Town multi-agent system",
+  "type": "module",
+  "bin": {
+    "gastown-dashboard": "./bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "dist/",
+    "packages/server/src/",
+    "packages/server/package.json"
+  ],
   "scripts": {
     "dev": "turbo dev",
-    "build": "turbo build"
+    "build": "turbo build",
+    "start": "node --import tsx bin/cli.js start",
+    "prepublishOnly": "pnpm build"
   },
+  "keywords": [
+    "gas-town",
+    "dashboard",
+    "multi-agent",
+    "ai-agents"
+  ],
+  "license": "MIT",
+  "packageManager": "pnpm@10.33.0",
   "devDependencies": {
     "turbo": "^2"
+  },
+  "dependencies": {
+    "tsx": "^4.21.0"
   }
 }

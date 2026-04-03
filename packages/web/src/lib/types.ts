@@ -131,3 +131,37 @@ export interface MailAddress {
   address: string;
   type: string;
 }
+
+// From `gt formula list --json`
+export interface Formula {
+  name: string;
+  type: string;
+  description: string;
+  source: string;
+  steps: number;
+  vars: number;
+}
+
+// From `gt formula show :name --json`
+export interface FormulaDetail extends Formula {
+  version: number;
+  vars_detail: Record<string, { description: string; required: boolean }>;
+  step_list: FormulaStep[];
+}
+
+export interface FormulaStep {
+  id: string;
+  title: string;
+  description: string;
+  needs?: string[];
+}
+
+// From `gt mol current --json`
+export interface MoleculeStatus {
+  identity: string;
+  steps_complete: number;
+  steps_total: number;
+  status: string;
+  formula?: string;
+  bead?: string;
+}

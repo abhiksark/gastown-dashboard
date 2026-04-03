@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
 import { InlineStatus } from "@/components/inline-status";
 import { apiPost, apiFetch } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { ContextMenu, type ContextMenuItem } from "@/components/context-menu";
 import type { Agent, Session } from "@/lib/types";
-import { X } from "lucide-react";
+import { InlineConfirm } from "@/components/inline-confirm";
+import { X, Zap, Eye, Server } from "lucide-react";
 
 interface HookInfo {
   agent: string;
@@ -23,9 +25,40 @@ export function AgentsPage() {
   const [selected, setSelected] = useState<Agent | null>(null);
   const [hookInfo, setHookInfo] = useState<HookInfo | null>(null);
   const [hookLoading, setHookLoading] = useState(false);
+  const [ctxMenu, setCtxMenu] = useState<{ pos: { x: number; y: number }; agent: Agent } | null>(null);
   const { addToast } = useToast();
 
   const roles = ["all", "mayor", "deacon", "witness", "crew", "polecat"];
+
+  const handleContextMenu = useCallback((e: React.MouseEvent, agent: Agent) => {
+    e.preventDefault();
+    setCtxMenu({ pos: { x: e.clientX, y: e.clientY }, agent });
+  }, []);
+
+  const ctxMenuItems: ContextMenuItem[] = ctxMenu
+    ? [
+        {
+          label: "View details",
+          icon: <Eye className="h-3.5 w-3.5" />,
+          onClick: () => setSelected(ctxMenu.agent),
+        },
+        {
+          label: "Nudge",
+          icon: <Zap className="h-3.5 w-3.5" />,
+          onClick: () => {
+            const target = ctxMenu.agent.rig ? `${ctxMenu.agent.rig}/${ctxMenu.agent.name}` : ctxMenu.agent.name;
+            handleNudge(target);
+          },
+        },
+        ...(ctxMenu.agent.rig
+          ? [{
+              label: "View rig",
+              icon: <Server className="h-3.5 w-3.5" />,
+              onClick: () => { window.location.href = `/rigs/${ctxMenu.agent.rig}`; },
+            }]
+          : []),
+      ]
+    : [];
 
   const filtered = data
     ? roleFilter === "all" ? data : data.filter((a) => a.role === roleFilter)
@@ -93,6 +126,7 @@ export function AgentsPage() {
                     <tr
                       key={`${agent.rig}-${agent.name}`}
                       onClick={() => setSelected(agent)}
+                      onContextMenu={(e) => handleContextMenu(e, agent)}
                       className={`group border-b border-[var(--color-border)] cursor-pointer transition-colors ${
                         selected?.name === agent.name && selected?.rig === agent.rig
                           ? "bg-blue-500/5"
@@ -112,12 +146,23 @@ export function AgentsPage() {
                       <td className="px-4 py-2"><InlineStatus status={agent.role} /></td>
                       <td className="px-4 py-2">{agent.rig ? <Link to={`/rigs/${agent.rig}`} onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-zinc-100 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors">{agent.rig}</Link> : <span className="text-zinc-400">{"\u2014"}</span>}</td>
                       <td className="px-4 py-2 text-right">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleNudge(target); }}
-                          disabled={nudging === target}
-                          className="rounded-md border border-[var(--color-border)] px-2.5 py-1 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors active:scale-[0.98] disabled:opacity-50">
-                          {nudging === target ? "Nudging..." : "Nudge"}
-                        </button>
+                        <span className="inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setSelected(agent); }}
+                            className="rounded-md p-1 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                            title="View details"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                          </button>
+                          <InlineConfirm
+                            onConfirm={() => handleNudge(target)}
+                            confirmLabel="Nudge?"
+                            disabled={nudging === target}
+                            className="rounded-md border border-[var(--color-border)] px-2.5 py-1 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors active:scale-[0.98] disabled:opacity-50"
+                          >
+                            {nudging === target ? "..." : <Zap className="h-3 w-3" />}
+                          </InlineConfirm>
+                        </span>
                       </td>
                     </tr>
                   );
@@ -217,6 +262,11 @@ export function AgentsPage() {
           )}
         </div>
       )}
+      <ContextMenu
+        items={ctxMenuItems}
+        position={ctxMenu?.pos ?? null}
+        onClose={() => setCtxMenu(null)}
+      />
     </div>
   );
 }

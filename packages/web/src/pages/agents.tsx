@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
 import { apiPost } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 import type { Agent } from "@/lib/types";
 
 export function AgentsPage() {
   const { data, loading, error, refetch } = useFetch<Agent[]>("/agents", 10000);
   const [nudging, setNudging] = useState<string | null>(null);
   const [roleFilter, setRoleFilter] = useState<string>("all");
+  const { addToast } = useToast();
 
   const roles = ["all", "mayor", "deacon", "witness", "crew", "polecat"];
 
@@ -19,9 +21,13 @@ export function AgentsPage() {
     setNudging(name);
     try {
       await apiPost(`/agents/${encodeURIComponent(name)}/nudge`, { message: "Nudge from Gas Town Dashboard" });
+      addToast(`Nudged ${name}`, "success");
       refetch();
-    } catch { /* nudge may fail for agents without session */ }
-    finally { setNudging(null); }
+    } catch {
+      addToast(`Failed to nudge ${name}`, "error");
+    } finally {
+      setNudging(null);
+    }
   }
 
   if (error) return <div className="text-red-400 text-sm">Failed to load agents: {error}</div>;

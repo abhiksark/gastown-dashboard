@@ -1,0 +1,19 @@
+{
+  "name": "@gastown/server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "@types/express": "^5",
+    "@types/cors": "^2",
+    "@types/node": "^22",
+    "tsx": "^4",
+    "typescript": "^5.7"
+  }
+}

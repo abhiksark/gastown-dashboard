@@ -12,6 +12,7 @@ import formulasRoutes from "./routes/formulas.js";
 import sessionsRoutes from "./routes/sessions.js";
 import feedRoutes from "./feed.js";
 import activityRoutes from "./routes/activity.js";
+import actionsRoutes from "./routes/actions.js";
 
 const app = express();
 app.use(cors());
@@ -33,6 +34,7 @@ app.use("/api/formulas", formulasRoutes);
 app.use("/api/sessions", sessionsRoutes);
 app.use("/api/feed", feedRoutes);
 app.use("/api/feed", activityRoutes);
+app.use("/api/actions", actionsRoutes);
 
 const PORT = process.env.PORT || 4800;
 app.listen(PORT, () => {

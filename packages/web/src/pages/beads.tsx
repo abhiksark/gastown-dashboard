@@ -2,17 +2,27 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
+import { CreateBeadDialog } from "@/components/create-bead-dialog";
+import { SlingDialog } from "@/components/sling-dialog";
+import { apiPost } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 import type { Bead } from "@/lib/types";
-import { X, CircleDot } from "lucide-react";
+import { X, CircleDot, Plus, Zap } from "lucide-react";
 
 type SortKey = "priority" | "updated_at" | "created_at" | "status";
 
 export function BeadsPage() {
-  const { data, loading, error } = useFetch<Bead[]>("/beads?all=true", 10000);
+  const { data, loading, error, refetch } = useFetch<Bead[]>("/beads?all=true", 10000);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("priority");
   const [sortAsc, setSortAsc] = useState(true);
   const [selected, setSelected] = useState<Bead | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [slingOpen, setSlingOpen] = useState(false);
+  const [closeReason, setCloseReason] = useState("");
+  const [showCloseInput, setShowCloseInput] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const { addToast } = useToast();
 
   const statuses = ["all", "open", "hooked", "closed"];
 
@@ -57,7 +67,23 @@ export function BeadsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Beads</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Beads</h2>
+          <button
+            onClick={() => setCreateOpen(true)}
+            className="rounded-md bg-[var(--color-accent)] p-1.5 text-white hover:bg-blue-600 transition-colors"
+            title="New Bead"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => setSlingOpen(true)}
+            className="rounded-md border border-[var(--color-border)] p-1.5 text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors"
+            title="Sling"
+          >
+            <Zap className="h-3.5 w-3.5" />
+          </button>
+        </div>
         <div className="flex gap-1">
           {statuses.map((s) => (
             <button key={s} onClick={() => setStatusFilter(s)}
@@ -214,10 +240,66 @@ export function BeadsPage() {
                   <p className="text-xs text-zinc-600">No description</p>
                 )}
               </div>
+
+              {/* Actions */}
+              <div className="px-5 py-3 border-t border-[var(--color-border)] space-y-2">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setSlingOpen(true); }}
+                    className="flex-1 rounded-md border border-[var(--color-border)] px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <Zap className="h-3 w-3" /> Sling
+                  </button>
+                  {selected.status !== "closed" && (
+                    <button
+                      onClick={() => setShowCloseInput(!showCloseInput)}
+                      className="flex-1 rounded-md border border-red-900/50 px-3 py-1.5 text-xs text-red-400 hover:text-red-300 hover:border-red-700 transition-colors"
+                    >
+                      Close
+                    </button>
+                  )}
+                </div>
+                {showCloseInput && (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={closeReason}
+                      onChange={(e) => setCloseReason(e.target.value)}
+                      placeholder="Reason (optional)"
+                      className="flex-1 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-500"
+                      autoFocus
+                    />
+                    <button
+                      onClick={async () => {
+                        setClosing(true);
+                        try {
+                          await apiPost(`/actions/beads/${selected.id}/close`, { reason: closeReason || undefined });
+                          addToast("Bead closed", "success");
+                          setShowCloseInput(false);
+                          setCloseReason("");
+                          setSelected(null);
+                          refetch();
+                        } catch (err: any) {
+                          addToast(`Failed to close: ${err.message}`, "error");
+                        } finally {
+                          setClosing(false);
+                        }
+                      }}
+                      disabled={closing}
+                      className="rounded-md bg-red-600 px-3 py-1.5 text-xs text-white hover:bg-red-500 transition-colors disabled:opacity-50"
+                    >
+                      {closing ? "..." : "Confirm"}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
       )}
+
+      <CreateBeadDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={refetch} />
+      <SlingDialog open={slingOpen} onClose={() => setSlingOpen(false)} preselectedBead={selected?.id} />
     </div>
   );
 }

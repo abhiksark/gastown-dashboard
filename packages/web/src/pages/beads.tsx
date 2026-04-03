@@ -7,13 +7,13 @@ import { X, CircleDot } from "lucide-react";
 type SortKey = "priority" | "updated_at" | "created_at" | "status";
 
 export function BeadsPage() {
-  const { data, loading, error } = useFetch<Bead[]>("/beads", 10000);
+  const { data, loading, error } = useFetch<Bead[]>("/beads?all=true", 10000);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("priority");
   const [sortAsc, setSortAsc] = useState(true);
   const [selected, setSelected] = useState<Bead | null>(null);
 
-  const statuses = ["all", "open", "hooked", "in_progress", "completed", "done"];
+  const statuses = ["all", "open", "hooked", "closed"];
 
   const filtered = useMemo(() => {
     if (!data) return [];

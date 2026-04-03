@@ -30,8 +30,8 @@ export function OverviewPage() {
       <div className="grid grid-cols-4 gap-4">
         <StatCard label="Rigs" value={data.rigs.total} icon={Server} />
         <StatCard label="Agents" value={data.agents.total} icon={Users} />
-        <StatCard label="Active Beads" value={data.beads.in_progress} icon={CircleDot} />
-        <StatCard label="Completed" value={data.beads.completed} icon={CheckCircle} />
+        <StatCard label="Hooked" value={data.beads.hooked} icon={CircleDot} />
+        <StatCard label="Closed" value={data.beads.closed} icon={CheckCircle} />
       </div>
 
       <div className="grid grid-cols-2 gap-6">

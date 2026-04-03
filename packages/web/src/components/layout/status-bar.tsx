@@ -28,7 +28,7 @@ export function StatusBar() {
           <span className="mx-3 text-zinc-600">|</span>
           <span>{data.rigs.total} rigs</span>
           <span className="mx-3 text-zinc-600">|</span>
-          <span>{data.beads.total} beads</span>
+          <span>{data.beads.hooked} hooked / {data.beads.open} open / {data.beads.closed} closed</span>
         </>
       )}
     </footer>

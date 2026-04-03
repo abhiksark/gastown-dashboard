@@ -47,8 +47,8 @@ export interface Overview {
   beads: {
     total: number;
     open: number;
-    in_progress: number;
-    completed: number;
+    hooked: number;
+    closed: number;
   };
   scheduler: Scheduler;
 }

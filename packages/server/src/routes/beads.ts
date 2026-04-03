@@ -3,9 +3,16 @@ import { runCli } from "../cli.js";
 
 const router = Router();
 
-router.get("/", async (_req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const data = await runCli("bd", ["list", "--json"]);
+    const args = ["list", "--json"];
+    if (req.query.all === "true") {
+      args.push("--all");
+    }
+    if (req.query.status) {
+      args.push("--status", req.query.status as string);
+    }
+    const data = await runCli("bd", args);
     res.json(Array.isArray(data) ? data : []);
   } catch (err: any) {
     res.status(500).json({ error: err.message });

@@ -8,6 +8,7 @@ import convoysRoutes from "./routes/convoys.js";
 import refineryRoutes from "./routes/refinery.js";
 import escalationsRoutes from "./routes/escalations.js";
 import feedRoutes from "./feed.js";
+import activityRoutes from "./routes/activity.js";
 
 const app = express();
 app.use(cors());
@@ -25,6 +26,7 @@ app.use("/api/convoys", convoysRoutes);
 app.use("/api/refinery", refineryRoutes);
 app.use("/api/escalations", escalationsRoutes);
 app.use("/api/feed", feedRoutes);
+app.use("/api/feed", activityRoutes);
 
 const PORT = process.env.PORT || 4800;
 app.listen(PORT, () => {

@@ -1,7 +1,13 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { homedir } from "node:os";
+import path from "node:path";
 
 const exec = promisify(execFile);
+
+// gt/bd need to run from the Gas Town home directory
+const GT_HOME = process.env.GT_HOME || path.join(homedir(), "gt");
+const BEADS_DIR = process.env.BEADS_DIR || path.join(GT_HOME, ".beads");
 
 interface CacheEntry {
   data: unknown;
@@ -25,12 +31,22 @@ export async function runCli(
 
   const { stdout } = await exec(command, args, {
     timeout: 15000,
-    env: { ...process.env, NO_COLOR: "1" },
+    cwd: GT_HOME,
+    env: {
+      ...process.env,
+      NO_COLOR: "1",
+      BEADS_DIR,
+    },
   });
 
   let data: unknown;
   try {
-    data = JSON.parse(stdout);
+    // bd/gt may prefix warnings to stdout before JSON — find the JSON start
+    const jsonStart = stdout.indexOf("[");
+    const jsonObjStart = stdout.indexOf("{");
+    const start = jsonStart === -1 ? jsonObjStart : jsonObjStart === -1 ? jsonStart : Math.min(jsonStart, jsonObjStart);
+    const toParse = start > 0 ? stdout.substring(start) : stdout;
+    data = JSON.parse(toParse);
   } catch {
     data = stdout.trim();
   }
@@ -45,7 +61,12 @@ export async function runAction(
 ): Promise<{ stdout: string; stderr: string }> {
   const { stdout, stderr } = await exec(command, args, {
     timeout: 15000,
-    env: { ...process.env, NO_COLOR: "1" },
+    cwd: GT_HOME,
+    env: {
+      ...process.env,
+      NO_COLOR: "1",
+      BEADS_DIR,
+    },
   });
   cache.clear();
   return { stdout: stdout.trim(), stderr: stderr.trim() };

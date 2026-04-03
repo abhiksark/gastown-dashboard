@@ -12,3 +12,5 @@ CLAUDE.md
 __pycache__/
 state.json
 CLAUDE.local.md
+.DS_Store
+screenshots/

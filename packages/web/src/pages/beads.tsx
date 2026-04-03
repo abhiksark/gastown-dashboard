@@ -1,14 +1,15 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
 import { CreateBeadDialog } from "@/components/create-bead-dialog";
 import { SlingDialog } from "@/components/sling-dialog";
+import { ContextMenu } from "@/components/context-menu";
 import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { InlineStatus } from "@/components/inline-status";
 import type { Bead } from "@/lib/types";
-import { X, CircleDot, Plus, Zap } from "lucide-react";
+import { X, CircleDot, Plus, Zap, Copy, Eye } from "lucide-react";
 
 type SortKey = "priority" | "updated_at" | "created_at" | "status";
 
@@ -23,7 +24,10 @@ export function BeadsPage() {
   const [closeReason, setCloseReason] = useState("");
   const [showCloseInput, setShowCloseInput] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [ctxMenu, setCtxMenu] = useState<{ pos: { x: number; y: number }; bead: Bead } | null>(null);
   const { addToast } = useToast();
+
+  const closeCtxMenu = useCallback(() => setCtxMenu(null), []);
 
   const statuses = ["all", "open", "hooked", "closed"];
 
@@ -116,6 +120,10 @@ export function BeadsPage() {
                   <tr
                     key={bead.id}
                     onClick={() => setSelected(bead)}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      setCtxMenu({ pos: { x: e.clientX, y: e.clientY }, bead });
+                    }}
                     className={`border-b border-[var(--color-border)] cursor-pointer transition-colors ${
                       selected?.id === bead.id
                         ? "bg-blue-500/5"
@@ -298,6 +306,15 @@ export function BeadsPage() {
           )}
         </div>
       )}
+
+      <ContextMenu
+        position={ctxMenu?.pos ?? null}
+        onClose={closeCtxMenu}
+        items={ctxMenu ? [
+          { label: "View details", icon: <Eye className="h-3.5 w-3.5" />, onClick: () => setSelected(ctxMenu.bead) },
+          { label: "Copy ID", icon: <Copy className="h-3.5 w-3.5" />, onClick: () => { navigator.clipboard.writeText(ctxMenu.bead.id); addToast("Copied ID", "success"); } },
+        ] : []}
+      />
 
       <CreateBeadDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={refetch} />
       <SlingDialog open={slingOpen} onClose={() => setSlingOpen(false)} preselectedBead={selected?.id} />

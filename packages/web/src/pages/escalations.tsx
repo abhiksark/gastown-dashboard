@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
+import { InlineConfirm } from "@/components/inline-confirm";
 import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { Escalation } from "@/lib/types";
@@ -155,32 +156,37 @@ export function EscalationsPage() {
 
               {esc.status === "open" && (
                 <div className="flex gap-2 mt-3 pt-3 border-t border-[var(--color-border)]">
-                  <button
-                    onClick={() => handleAck(esc.id)}
+                  <InlineConfirm
+                    onConfirm={() => handleAck(esc.id)}
+                    confirmLabel="Acknowledge?"
                     disabled={acting === esc.id}
                     className="rounded-md border border-[var(--color-border)] px-3 py-1 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors active:scale-[0.98] disabled:opacity-50"
                   >
                     {acting === esc.id ? "..." : "Acknowledge"}
-                  </button>
-                  <button
-                    onClick={() => handleClose(esc.id)}
+                  </InlineConfirm>
+                  <InlineConfirm
+                    onConfirm={() => handleClose(esc.id)}
+                    confirmLabel="Resolve?"
+                    variant="danger"
                     disabled={acting === esc.id}
                     className="rounded-md border border-emerald-500/20 px-3 py-1 text-xs text-emerald-400 hover:bg-emerald-500/10 transition-colors active:scale-[0.98] disabled:opacity-50"
                   >
                     {acting === esc.id ? "..." : "Resolve"}
-                  </button>
+                  </InlineConfirm>
                 </div>
               )}
 
               {esc.status === "acknowledged" && (
                 <div className="flex gap-2 mt-3 pt-3 border-t border-[var(--color-border)]">
-                  <button
-                    onClick={() => handleClose(esc.id)}
+                  <InlineConfirm
+                    onConfirm={() => handleClose(esc.id)}
+                    confirmLabel="Resolve?"
+                    variant="danger"
                     disabled={acting === esc.id}
                     className="rounded-md border border-emerald-500/20 px-3 py-1 text-xs text-emerald-400 hover:bg-emerald-500/10 transition-colors active:scale-[0.98] disabled:opacity-50"
                   >
                     {acting === esc.id ? "..." : "Resolve"}
-                  </button>
+                  </InlineConfirm>
                 </div>
               )}
 

@@ -30,7 +30,7 @@ export async function runCli(
   }
 
   const { stdout } = await exec(command, args, {
-    timeout: 15000,
+    timeout: 30000,
     cwd: GT_HOME,
     env: {
       ...process.env,
@@ -70,7 +70,7 @@ export async function runAction(
   args: string[]
 ): Promise<{ stdout: string; stderr: string }> {
   const { stdout, stderr } = await exec(command, args, {
-    timeout: 15000,
+    timeout: 30000,
     cwd: GT_HOME,
     env: {
       ...process.env,

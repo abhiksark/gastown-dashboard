@@ -31,7 +31,7 @@ export function BeadsPage() {
     else { setSortKey(key); setSortAsc(true); }
   }
 
-  function SortHeader({ label, field }: { label: string; field: SortKey }) {
+  function sortHeader(label: string, field: SortKey) {
     return (
       <th className="text-left font-medium text-zinc-400 px-4 py-3 cursor-pointer hover:text-zinc-200 select-none" onClick={() => handleSort(field)}>
         {label}{sortKey === field && <span className="ml-1">{sortAsc ? "\u2191" : "\u2193"}</span>}
@@ -62,9 +62,9 @@ export function BeadsPage() {
                 <th className="text-left font-medium text-zinc-400 px-4 py-3">ID</th>
                 <th className="text-left font-medium text-zinc-400 px-4 py-3">Title</th>
                 <th className="text-left font-medium text-zinc-400 px-4 py-3">Status</th>
-                <SortHeader label="Priority" field="priority" />
+                {sortHeader("Priority", "priority")}
                 <th className="text-left font-medium text-zinc-400 px-4 py-3">Assignee</th>
-                <SortHeader label="Updated" field="updated_at" />
+                {sortHeader("Updated", "updated_at")}
               </tr>
             </thead>
             <tbody>

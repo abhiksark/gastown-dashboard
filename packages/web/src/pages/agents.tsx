@@ -61,7 +61,7 @@ export function AgentsPage() {
                     <td className="px-4 py-3"><StatusBadge status={agent.role} /></td>
                     <td className="px-4 py-3 text-zinc-400">{agent.rig || "\u2014"}</td>
                     <td className="px-4 py-3 text-right">
-                      <button onClick={() => handleNudge(target)} disabled={nudging !== null}
+                      <button onClick={() => handleNudge(target)} disabled={nudging === target}
                         className="rounded-md border border-[var(--color-border)] px-2.5 py-1 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors disabled:opacity-50">
                         {nudging === target ? "Nudging..." : "Nudge"}
                       </button>

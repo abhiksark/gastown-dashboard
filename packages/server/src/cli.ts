@@ -41,14 +41,24 @@ export async function runCli(
 
   let data: unknown;
   try {
-    // bd/gt may prefix warnings to stdout before JSON — find the JSON start
-    const jsonStart = stdout.indexOf("[");
-    const jsonObjStart = stdout.indexOf("{");
-    const start = jsonStart === -1 ? jsonObjStart : jsonObjStart === -1 ? jsonStart : Math.min(jsonStart, jsonObjStart);
-    const toParse = start > 0 ? stdout.substring(start) : stdout;
-    data = JSON.parse(toParse);
+    data = JSON.parse(stdout);
   } catch {
-    data = stdout.trim();
+    // stdout may have warning lines before JSON — try to find the real JSON
+    // Look for `[{` (array of objects) or `{"` (object) as more reliable markers
+    const arrayStart = stdout.indexOf("[{");
+    const objStart = stdout.indexOf('{"');
+    const fallbackArray = stdout.indexOf("[\n");
+    const candidates = [arrayStart, objStart, fallbackArray].filter((i) => i >= 0);
+    if (candidates.length > 0) {
+      const start = Math.min(...candidates);
+      try {
+        data = JSON.parse(stdout.substring(start));
+      } catch {
+        data = stdout.trim();
+      }
+    } else {
+      data = stdout.trim();
+    }
   }
 
   cache.set(key, { data, expiresAt: now + ttl });

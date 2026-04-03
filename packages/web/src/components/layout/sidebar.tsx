@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { LayoutDashboard, Users, CircleDot, Server, PanelLeftClose, PanelLeft } from "lucide-react";
 
 const navItems = [
-  { to: "/", label: "Overview", icon: LayoutDashboard },
+  { to: "/", label: "Overview", icon: LayoutDashboard, end: true },
   { to: "/agents", label: "Agents", icon: Users },
   { to: "/beads", label: "Beads", icon: CircleDot },
   { to: "/rigs", label: "Rigs", icon: Server },
@@ -34,10 +34,11 @@ export function Sidebar() {
         </button>
       </div>
       <nav className="flex-1 py-3 px-2 space-y-1">
-        {navItems.map(({ to, label, icon: Icon }) => (
+        {navItems.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
+            end={end}
             className={({ isActive }) => cn(
               "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
               isActive ? "bg-zinc-800 text-zinc-100" : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"

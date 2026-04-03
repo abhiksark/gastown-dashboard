@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { createReadStream, watchFile, unwatchFile, statSync } from "node:fs";
+import { createReadStream, watchFile, unwatchFile, statSync, existsSync } from "node:fs";
 import { createInterface } from "node:readline";
 import { homedir } from "node:os";
 import path from "node:path";
@@ -22,21 +22,18 @@ function addEvent(line: string) {
 }
 
 function seedRecentEvents() {
-  try {
-    const rl = createInterface({
-      input: createReadStream(EVENTS_FILE, { encoding: "utf-8" }),
-    });
-    const buffer: string[] = [];
-    rl.on("line", (line) => {
-      buffer.push(line);
-      if (buffer.length > MAX_RECENT) buffer.shift();
-    });
-    rl.on("close", () => {
-      buffer.forEach(addEvent);
-    });
-  } catch {
-    // File may not exist yet
-  }
+  if (!existsSync(EVENTS_FILE)) return;
+  const stream = createReadStream(EVENTS_FILE, { encoding: "utf-8" });
+  stream.on("error", () => {}); // guard against race
+  const rl = createInterface({ input: stream });
+  const buffer: string[] = [];
+  rl.on("line", (line) => {
+    buffer.push(line);
+    if (buffer.length > MAX_RECENT) buffer.shift();
+  });
+  rl.on("close", () => {
+    buffer.forEach(addEvent);
+  });
 }
 
 seedRecentEvents();
@@ -51,8 +48,11 @@ try {
 }
 
 watchFile(EVENTS_FILE, { interval: 1000 }, (curr) => {
+  if (curr.size < lastSize) {
+    // File was truncated (log rotation) — reset and read from start
+    lastSize = 0;
+  }
   if (curr.size <= lastSize) {
-    lastSize = curr.size;
     return;
   }
 
@@ -60,6 +60,7 @@ watchFile(EVENTS_FILE, { interval: 1000 }, (curr) => {
     start: lastSize,
     encoding: "utf-8",
   });
+  stream.on("error", () => {}); // guard against ENOENT race
   const rl = createInterface({ input: stream });
 
   rl.on("line", (line) => {

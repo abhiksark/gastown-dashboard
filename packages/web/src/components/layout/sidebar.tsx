@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink } from "react-router";
 import { cn } from "@/lib/utils";
 import { useFetch } from "@/hooks/use-fetch";
-import { LayoutDashboard, Users, Terminal, CircleDot, Server, Truck, GitMerge, AlertTriangle, Mail, FlaskConical, Activity, PanelLeftClose, PanelLeft, Settings } from "lucide-react";
+import { LayoutDashboard, Users, Terminal, CircleDot, Server, Truck, GitMerge, AlertTriangle, Mail, FlaskConical, Activity, PanelLeftClose, PanelLeft, Settings, DollarSign } from "lucide-react";
 import type { Escalation } from "@/lib/types";
 
 interface NavItem {
@@ -32,6 +32,7 @@ export function Sidebar() {
       items: [
         { to: "/", label: "Overview", icon: LayoutDashboard, end: true },
         { to: "/feed", label: "Feed", icon: Activity },
+        { to: "/costs", label: "Costs", icon: DollarSign },
         { to: "/escalations", label: "Escalations", icon: AlertTriangle, badge: openEscalationCount },
       ],
     },

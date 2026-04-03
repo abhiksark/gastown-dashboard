@@ -182,6 +182,24 @@ export interface WitnessStatus {
   session: string;
 }
 
+// From `gt costs --json`
+export interface CostEntry {
+  session: string;
+  role: string;
+  rig: string;
+  worker?: string;
+  cost_usd: number;
+  running: boolean;
+}
+
+export interface CostSummary {
+  total_usd: number;
+  sessions?: CostEntry[];
+  by_rig?: Record<string, number>;
+  by_role?: Record<string, number>;
+  period?: string;
+}
+
 // From `gt mol current --json`
 export interface MoleculeStatus {
   identity: string;

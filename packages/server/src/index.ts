@@ -15,6 +15,7 @@ import activityRoutes from "./routes/activity.js";
 import actionsRoutes from "./routes/actions.js";
 import controlRoutes from "./routes/control.js";
 import settingsRoutes from "./routes/settings.js";
+import costsRoutes from "./routes/costs.js";
 
 const app = express();
 app.use(cors());
@@ -39,6 +40,7 @@ app.use("/api/feed", activityRoutes);
 app.use("/api/actions", actionsRoutes);
 app.use("/api/control", controlRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/costs", costsRoutes);
 
 const PORT = process.env.PORT || 4800;
 app.listen(PORT, () => {

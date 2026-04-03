@@ -1,7 +1,6 @@
 import { Routes, Route } from "react-router";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
-import { StatusBar } from "@/components/layout/status-bar";
 import { ToastContainer } from "@/components/toast";
 import { ToastContext, useToastState } from "@/hooks/use-toast";
 import { OverviewPage } from "@/pages/overview";
@@ -28,7 +27,7 @@ export function App() {
         <Sidebar />
         <div className="flex flex-col flex-1 min-w-0">
           <Topbar />
-          <main className="flex-1 overflow-auto px-8 py-6">
+          <main className="flex-1 overflow-auto px-6 py-4">
             <Routes>
               <Route path="/" element={<OverviewPage />} />
               <Route path="/agents" element={<AgentsPage />} />
@@ -45,7 +44,6 @@ export function App() {
               <Route path="/feed" element={<FeedPage />} />
             </Routes>
           </main>
-          <StatusBar />
         </div>
       </div>
       <ToastContainer toasts={toastState.toasts} onRemove={toastState.removeToast} />

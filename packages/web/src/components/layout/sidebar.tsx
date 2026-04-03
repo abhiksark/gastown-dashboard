@@ -26,7 +26,7 @@ export function Sidebar() {
       "transition-[width] duration-200",
       collapsed ? "w-16" : "w-56"
     )}>
-      <div className="flex items-center h-14 px-4 border-b border-[var(--color-border)]">
+      <div className="flex items-center h-12 px-4 border-b border-[var(--color-border)]">
         {!collapsed && (
           <span className="text-sm font-semibold text-zinc-100 tracking-tight">Gas Town</span>
         )}

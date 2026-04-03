@@ -13,6 +13,7 @@ import { RefineryPage } from "@/pages/refinery";
 import { EscalationsPage } from "@/pages/escalations";
 import { MailPage } from "@/pages/mail";
 import { RigDetailPage } from "@/pages/rig-detail";
+import { CommandPalette } from "@/components/command-palette";
 
 export function App() {
   const toastState = useToastState();
@@ -40,6 +41,7 @@ export function App() {
         </div>
       </div>
       <ToastContainer toasts={toastState.toasts} onRemove={toastState.removeToast} />
+      <CommandPalette />
     </ToastContext.Provider>
   );
 }

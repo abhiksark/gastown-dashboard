@@ -61,3 +61,52 @@ export interface FeedEvent {
   payload: Record<string, unknown>;
   visibility: string;
 }
+
+// From `gt convoy list --json` / `gt convoy show :id --json`
+export interface Convoy {
+  id: string;
+  title: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  owner: string;
+  beads: ConvoyBead[] | null;
+  total: number;
+  done: number;
+  active: number;
+  blocked: number;
+  pending: number;
+}
+
+export interface ConvoyBead {
+  id: string;
+  title: string;
+  status: string;
+  assignee: string;
+  rig: string;
+}
+
+// From `gt mq list :rig --json`
+export interface MergeRequest {
+  id: string;
+  status: string;
+  priority: number;
+  branch: string;
+  worker: string;
+  age: string;
+  rig: string;
+}
+
+// From `gt escalate list --json`
+export interface Escalation {
+  id: string;
+  description: string;
+  severity: string;
+  status: string;
+  source_agent: string;
+  rig: string;
+  created_at: string;
+  acknowledged_at: string | null;
+  closed_at: string | null;
+  reason: string | null;
+}

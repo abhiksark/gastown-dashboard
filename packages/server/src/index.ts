@@ -9,6 +9,7 @@ import refineryRoutes from "./routes/refinery.js";
 import escalationsRoutes from "./routes/escalations.js";
 import mailRoutes from "./routes/mail.js";
 import formulasRoutes from "./routes/formulas.js";
+import sessionsRoutes from "./routes/sessions.js";
 import feedRoutes from "./feed.js";
 
 const app = express();
@@ -28,6 +29,7 @@ app.use("/api/refinery", refineryRoutes);
 app.use("/api/escalations", escalationsRoutes);
 app.use("/api/mail", mailRoutes);
 app.use("/api/formulas", formulasRoutes);
+app.use("/api/sessions", sessionsRoutes);
 app.use("/api/feed", feedRoutes);
 
 const PORT = process.env.PORT || 4800;

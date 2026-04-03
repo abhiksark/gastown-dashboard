@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router";
 import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
@@ -8,12 +8,32 @@ import type { Rig, Agent, Bead, PolecatStatus, Session } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Server, ArrowLeft, RotateCw, Play, Square, Bomb } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
+interface RigMetric {
+  rig: string;
+  total: number;
+  completed: number;
+  recent_completed: number;
+  beads_per_day: number;
+  active_workers: number;
+  daily: { date: string; count: number }[];
+}
 
 export function RigDetailPage() {
   const { name } = useParams<{ name: string }>();
   const { data: rigs, loading: rigsLoading } = useFetch<Rig[]>("/rigs", 10000);
   const { data: agents, loading: agentsLoading } = useFetch<Agent[]>("/agents", 10000);
   const { data: beads, loading: beadsLoading } = useFetch<Bead[]>("/beads", 10000);
+  const { data: allRigMetrics } = useFetch<RigMetric[]>("/metrics/rigs", 30000);
   const { data: polecats, loading: polecatsLoading, refetch: refetchPolecats } = useFetch<PolecatStatus[]>(
     `/sessions/polecats/${encodeURIComponent(name || "")}`,
     10000
@@ -29,6 +49,11 @@ export function RigDetailPage() {
   const rigBeads = beads?.filter((b) => b.assignee?.includes(name || "")) || [];
   const rigSessions = sessions?.filter((s) => s.rig === name) || [];
   const loading = rigsLoading || agentsLoading || beadsLoading;
+
+  const rigMetric = useMemo(() => {
+    if (!allRigMetrics || !name) return null;
+    return allRigMetrics.find((m) => m.rig === name) || null;
+  }, [allRigMetrics, name]);
 
   function getSessionForPolecat(polecatName: string): Session | undefined {
     return rigSessions.find((s) => s.polecat === polecatName);
@@ -164,6 +189,51 @@ export function RigDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Throughput */}
+      {rigMetric && (
+        <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-zinc-100">Throughput (7 days)</h3>
+            <div className="flex items-center gap-4 text-xs">
+              <span className="text-zinc-400">
+                <span className="text-zinc-100 font-semibold tabular-nums">{rigMetric.beads_per_day.toFixed(1)}</span> beads/day
+              </span>
+              <span className="text-zinc-400">
+                <span className="text-zinc-100 font-semibold tabular-nums">{rigMetric.active_workers}</span> active workers
+              </span>
+              <span className="text-zinc-400">
+                <span className="text-zinc-100 font-semibold tabular-nums">{rigMetric.recent_completed}</span> completed (7d)
+              </span>
+            </div>
+          </div>
+          {rigMetric.daily.length > 0 ? (
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={rigMetric.daily} margin={{ left: 0, right: 0, top: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fill: "#71717a", fontSize: 11 }}
+                  tickFormatter={(v: string) => v.slice(5)}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fill: "#71717a", fontSize: 11 }}
+                  width={30}
+                />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: 8 }}
+                  labelStyle={{ color: "#e4e4e7" }}
+                  formatter={(v: number) => [v, "Beads"]}
+                />
+                <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-[180px] flex items-center justify-center text-xs text-zinc-600">No data</div>
+          )}
+        </div>
+      )}
 
       {/* Polecats on this rig */}
       <div>

@@ -4,7 +4,7 @@ import { useSSE } from "@/hooks/use-sse";
 import { StatusBadge } from "@/components/status-badge";
 import { cn } from "@/lib/utils";
 import type { Agent, FeedEvent } from "@/lib/types";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, Flame, Target } from "lucide-react";
 import { useState, useRef, useEffect, useMemo } from "react";
 
 const eventColors: Record<string, string> = {
@@ -33,11 +33,22 @@ const eventDotColors: Record<string, string> = {
   dispatch: "bg-indigo-400",
 };
 
+interface AgentMetric {
+  agent: string;
+  total: number;
+  completed: number;
+  open: number;
+  avg_completion_hours: number | null;
+  streak: number;
+  success_rate: number;
+}
+
 type TypeFilter = "all" | string;
 
 export function AgentDetailPage() {
   const { name } = useParams<{ name: string }>();
   const { data: agents } = useFetch<Agent[]>("/agents", 10000);
+  const { data: allMetrics } = useFetch<AgentMetric[]>("/metrics/agents", 30000);
   const { data: history } = useFetch<FeedEvent[]>(
     `/agents/${encodeURIComponent(name || "")}/feed?limit=200`,
     10000
@@ -47,6 +58,12 @@ export function AgentDetailPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const agent = agents?.find((a) => a.name === name);
+
+  // Find metrics matching this agent (assignee contains agent name)
+  const agentMetric = useMemo(() => {
+    if (!allMetrics || !name) return null;
+    return allMetrics.find((m) => m.agent.includes(name)) || null;
+  }, [allMetrics, name]);
 
   // Merge historical + live events for this agent, deduplicate by timestamp
   const allEvents = useMemo(() => {
@@ -114,6 +131,52 @@ export function AgentDetailPage() {
           </span>
         </div>
       </div>
+
+      {/* Performance cards */}
+      {agentMetric && (
+        <div className="grid grid-cols-4 gap-3">
+          <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Completed</span>
+            </div>
+            <p className="text-lg font-semibold text-zinc-100 tabular-nums">{agentMetric.completed}</p>
+            <p className="text-[10px] text-zinc-500">{agentMetric.total} total</p>
+          </div>
+          <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Clock className="h-3.5 w-3.5 text-blue-400" />
+              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Avg Time</span>
+            </div>
+            <p className="text-lg font-semibold text-zinc-100 tabular-nums">
+              {agentMetric.avg_completion_hours !== null
+                ? agentMetric.avg_completion_hours < 1
+                  ? `${Math.round(agentMetric.avg_completion_hours * 60)}m`
+                  : `${agentMetric.avg_completion_hours.toFixed(1)}h`
+                : "\u2014"}
+            </p>
+            <p className="text-[10px] text-zinc-500">per bead</p>
+          </div>
+          <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Flame className="h-3.5 w-3.5 text-orange-400" />
+              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Streak</span>
+            </div>
+            <p className="text-lg font-semibold text-zinc-100 tabular-nums">{agentMetric.streak}</p>
+            <p className="text-[10px] text-zinc-500">consecutive</p>
+          </div>
+          <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Target className="h-3.5 w-3.5 text-purple-400" />
+              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Success</span>
+            </div>
+            <p className="text-lg font-semibold text-zinc-100 tabular-nums">
+              {Math.round(agentMetric.success_rate * 100)}%
+            </p>
+            <p className="text-[10px] text-zinc-500">{agentMetric.open} open</p>
+          </div>
+        </div>
+      )}
 
       {/* Type filters */}
       <div className="flex gap-1 flex-wrap">

@@ -28,6 +28,7 @@ import {
   Shield,
   Dog,
   ShieldCheck,
+  Mountain,
 } from "lucide-react";
 
 const pages = [
@@ -44,6 +45,7 @@ const pages = [
   { label: "Deacon", path: "/deacon", icon: Shield },
   { label: "Dogs", path: "/dogs", icon: Dog },
   { label: "Patrols", path: "/patrols", icon: ShieldCheck },
+  { label: "Mountains", path: "/mountains", icon: Mountain },
 ];
 
 export function CommandPalette() {

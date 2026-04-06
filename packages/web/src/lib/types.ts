@@ -298,6 +298,38 @@ export interface PatrolEvent {
   visibility: string;
 }
 
+// From `gt mountain status --json`
+export interface Mountain {
+  id: string;
+  title: string;
+  status: string;
+  total: number;
+  done: number;
+  active: number;
+  blocked: number;
+  pending: number;
+  skipped: number;
+  current_wave: number;
+  total_waves: number;
+  last_progress: string;
+  created_at: string;
+  updated_at: string;
+  waves?: MountainWave[];
+}
+
+export interface MountainWave {
+  wave: number;
+  status: string;
+  beads: MountainBead[];
+}
+
+export interface MountainBead {
+  id: string;
+  title: string;
+  status: string;
+  assignee: string;
+}
+
 // From `gt mol current --json`
 export interface MoleculeStatus {
   identity: string;

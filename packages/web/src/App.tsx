@@ -29,6 +29,7 @@ import { TerminalPage } from "@/pages/terminal";
 import { DeaconPage } from "@/pages/deacon";
 import { DogsPage } from "@/pages/dogs";
 import { PatrolsPage } from "@/pages/patrols";
+import { MountainsPage } from "@/pages/mountains";
 
 export function App() {
   const toastState = useToastState();
@@ -66,6 +67,7 @@ export function App() {
               <Route path="/deacon" element={<DeaconPage />} />
               <Route path="/dogs" element={<DogsPage />} />
               <Route path="/patrols" element={<PatrolsPage />} />
+              <Route path="/mountains" element={<MountainsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Routes>
           </main>

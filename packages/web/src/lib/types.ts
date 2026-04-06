@@ -267,6 +267,37 @@ export interface DogHealth {
   needs_attention: boolean;
 }
 
+// From `gt patrol scan --json`
+export interface PatrolScan {
+  rig: string;
+  timestamp: string;
+  zombies: { checked: number; found: number };
+  stalls: {
+    checked: number;
+    found: number;
+    stalls?: Array<{
+      polecat: string;
+      stall_type: string;
+      action: string;
+    }>;
+  };
+  completions: { checked: number; found: number };
+}
+
+// Patrol events from .events.jsonl (filtered)
+export interface PatrolEvent {
+  ts: string;
+  source: string;
+  type: string;
+  actor: string;
+  payload: {
+    subject?: string;
+    topic?: string;
+    [key: string]: unknown;
+  };
+  visibility: string;
+}
+
 // From `gt mol current --json`
 export interface MoleculeStatus {
   identity: string;

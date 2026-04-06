@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink } from "react-router";
 import { cn } from "@/lib/utils";
 import { useFetch } from "@/hooks/use-fetch";
-import { LayoutDashboard, Users, Terminal, SquareTerminal, CircleDot, Server, Truck, GitMerge, AlertTriangle, Mail, FlaskConical, Activity, PanelLeftClose, PanelLeft, Settings, DollarSign, ClipboardList, Shield, Dog } from "lucide-react";
+import { LayoutDashboard, Users, Terminal, SquareTerminal, CircleDot, Server, Truck, GitMerge, AlertTriangle, Mail, FlaskConical, Activity, PanelLeftClose, PanelLeft, Settings, DollarSign, ClipboardList, Shield, Dog, ShieldCheck } from "lucide-react";
 import type { Escalation } from "@/lib/types";
 
 interface NavItem {
@@ -34,6 +34,7 @@ export function Sidebar() {
         { to: "/feed", label: "Feed", icon: Activity },
         { to: "/costs", label: "Costs", icon: DollarSign },
         { to: "/escalations", label: "Escalations", icon: AlertTriangle, badge: openEscalationCount },
+        { to: "/patrols", label: "Patrols", icon: ShieldCheck },
       ],
     },
     {

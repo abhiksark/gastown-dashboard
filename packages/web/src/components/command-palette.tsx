@@ -27,6 +27,7 @@ import {
   RotateCw,
   Shield,
   Dog,
+  ShieldCheck,
 } from "lucide-react";
 
 const pages = [
@@ -42,6 +43,7 @@ const pages = [
   { label: "Workflows", path: "/workflows", icon: FlaskConical },
   { label: "Deacon", path: "/deacon", icon: Shield },
   { label: "Dogs", path: "/dogs", icon: Dog },
+  { label: "Patrols", path: "/patrols", icon: ShieldCheck },
 ];
 
 export function CommandPalette() {

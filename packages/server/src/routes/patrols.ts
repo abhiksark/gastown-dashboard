@@ -15,8 +15,19 @@ const EVENTS_FILE = path.join(
 // GET /api/patrols/active — latest patrol scan results per rig
 router.get("/active", async (_req: Request, res: Response) => {
   try {
-    const data = await runCli("gt", ["patrol", "scan", "--json"]);
-    res.json(data ?? { zombies: { checked: 0, found: 0 }, stalls: { checked: 0, found: 0 }, completions: { checked: 0, found: 0 } });
+    // Get all rigs, then scan each
+    const rigsRaw = await runCli("gt", ["rig", "list", "--json"]);
+    const rigs = Array.isArray(rigsRaw) ? rigsRaw : [];
+    const results: Record<string, unknown> = {};
+    for (const rig of rigs) {
+      try {
+        const data = await runCli("gt", ["patrol", "scan", "--rig", rig.name, "--json"]);
+        results[rig.name] = data ?? { zombies: { checked: 0, found: 0 }, stalls: { checked: 0, found: 0 }, completions: { checked: 0, found: 0 } };
+      } catch {
+        results[rig.name] = { error: "scan failed" };
+      }
+    }
+    res.json(results);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

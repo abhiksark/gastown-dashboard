@@ -27,6 +27,7 @@ import auditRoutes from "./routes/audit.js";
 import deaconRoutes from "./routes/deacon.js";
 import gatesRoutes from "./routes/gates.js";
 import patrolsRoutes from "./routes/patrols.js";
+import doctorRoutes from "./routes/doctor.js";
 import { attachTerminalWS } from "./terminal.js";
 
 const app = express();
@@ -62,6 +63,7 @@ app.use("/api/gates", gatesRoutes);
 app.use("/api/dogs", dogsRoutes);
 app.use("/api/patrols", patrolsRoutes);
 app.use("/api/mountains", mountainsRoutes);
+app.use("/api/doctor", doctorRoutes);
 
 // In production, serve built frontend static files
 if (process.env.NODE_ENV === "production") {

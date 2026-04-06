@@ -40,11 +40,18 @@ export function BeadsPage() {
 
   const closeCtxMenu = useCallback(() => setCtxMenu(null), []);
 
-  const statuses = ["all", "open", "hooked", "closed"];
+  const statuses = ["all", "open", "hooked", "waiting", "closed"];
 
   const filtered = useMemo(() => {
     if (!data) return [];
-    let result = statusFilter === "all" ? data : data.filter((b) => b.status === statusFilter);
+    let result: typeof data;
+    if (statusFilter === "all") {
+      result = data;
+    } else if (statusFilter === "waiting") {
+      result = data.filter((b) => b.dependency_count > 0 && b.status !== "closed");
+    } else {
+      result = data.filter((b) => b.status === statusFilter);
+    }
     result = [...result].sort((a, b) => {
       let cmp = 0;
       if (sortKey === "priority") cmp = a.priority - b.priority;
@@ -61,6 +68,9 @@ export function BeadsPage() {
     const c: Record<string, number> = { all: data.length };
     for (const b of data) {
       c[b.status] = (c[b.status] || 0) + 1;
+      if (b.dependency_count > 0 && b.status !== "closed") {
+        c["waiting"] = (c["waiting"] || 0) + 1;
+      }
     }
     return c;
   }, [data]);
@@ -340,9 +350,20 @@ export function BeadsPage() {
                   </div>
                 )}
                 {selected.dependency_count > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-zinc-500">Dependencies</span>
-                    <span className="text-xs text-zinc-300">{selected.dependency_count}</span>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-zinc-500">Dependencies ({selected.dependency_count})</span>
+                    </div>
+                    {selected.dependencies && selected.dependencies.length > 0 && (
+                      <div className="mt-1 space-y-1">
+                        {selected.dependencies.map((dep) => (
+                          <div key={dep.depends_on_id} className="flex items-center justify-between rounded bg-zinc-900 px-2 py-1">
+                            <span className="font-mono text-[10px] text-zinc-400">{dep.depends_on_id}</span>
+                            <span className="text-[10px] text-zinc-600">{dep.type}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
                 {selected.dependent_count > 0 && (
@@ -388,6 +409,22 @@ export function BeadsPage() {
                   >
                     <Zap className="h-3 w-3" /> Sling
                   </button>
+                  {selected.dependency_count > 0 && selected.status !== "closed" && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          await apiPost(`/gates/${selected.id}/resolve`);
+                          addToast("Bead unblocked", "success");
+                          refetch();
+                        } catch (err: any) {
+                          addToast(`Failed to resolve: ${err.message}`, "error");
+                        }
+                      }}
+                      className="flex-1 rounded-md border border-amber-900/50 px-3 py-1.5 text-xs text-amber-400 hover:text-amber-300 hover:border-amber-700 transition-colors"
+                    >
+                      Resolve
+                    </button>
+                  )}
                   {selected.status !== "closed" && (
                     <button
                       onClick={() => setShowCloseInput(!showCloseInput)}

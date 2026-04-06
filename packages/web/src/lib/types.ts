@@ -15,6 +15,15 @@ export interface Agent {
   icon: string;
 }
 
+export interface BeadDependency {
+  issue_id: string;
+  depends_on_id: string;
+  type: string;
+  created_at: string;
+  created_by: string;
+  metadata: string;
+}
+
 export interface Bead {
   id: string;
   title: string;
@@ -28,6 +37,7 @@ export interface Bead {
   created_by: string;
   updated_at: string;
   labels: string[];
+  dependencies?: BeadDependency[];
   dependency_count: number;
   dependent_count: number;
   comment_count: number;

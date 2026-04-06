@@ -22,6 +22,7 @@ import metricsRoutes from "./routes/metrics.js";
 import anomaliesRoutes from "./routes/anomalies.js";
 import { auditLogger } from "./audit.js";
 import auditRoutes from "./routes/audit.js";
+import deaconRoutes from "./routes/deacon.js";
 import { attachTerminalWS } from "./terminal.js";
 
 const app = express();
@@ -52,6 +53,7 @@ app.use("/api/costs", costsRoutes);
 app.use("/api/metrics", metricsRoutes);
 app.use("/api/anomalies", anomaliesRoutes);
 app.use("/api/audit", auditRoutes);
+app.use("/api/deacon", deaconRoutes);
 
 // In production, serve built frontend static files
 if (process.env.NODE_ENV === "production") {

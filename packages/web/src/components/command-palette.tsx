@@ -25,6 +25,7 @@ import {
   Play,
   Square,
   RotateCw,
+  Shield,
 } from "lucide-react";
 
 const pages = [
@@ -38,6 +39,7 @@ const pages = [
   { label: "Escalations", path: "/escalations", icon: AlertTriangle },
   { label: "Mail", path: "/mail", icon: Mail },
   { label: "Workflows", path: "/workflows", icon: FlaskConical },
+  { label: "Deacon", path: "/deacon", icon: Shield },
 ];
 
 export function CommandPalette() {

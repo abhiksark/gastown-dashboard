@@ -20,6 +20,7 @@ import settingsRoutes from "./routes/settings.js";
 import costsRoutes from "./routes/costs.js";
 import metricsRoutes from "./routes/metrics.js";
 import anomaliesRoutes from "./routes/anomalies.js";
+import dogsRoutes from "./routes/dogs.js";
 import { auditLogger } from "./audit.js";
 import auditRoutes from "./routes/audit.js";
 import deaconRoutes from "./routes/deacon.js";
@@ -56,6 +57,7 @@ app.use("/api/anomalies", anomaliesRoutes);
 app.use("/api/audit", auditRoutes);
 app.use("/api/deacon", deaconRoutes);
 app.use("/api/gates", gatesRoutes);
+app.use("/api/dogs", dogsRoutes);
 
 // In production, serve built frontend static files
 if (process.env.NODE_ENV === "production") {

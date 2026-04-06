@@ -246,6 +246,27 @@ export interface HeatmapDay {
   count: number;
 }
 
+// From `gt dog list --json`
+export interface Dog {
+  name: string;
+  state: string;
+  last_active: string;
+  worktrees: Record<string, string>;
+}
+
+// From `gt dog health-check --json`
+export interface DogHealthCheck {
+  dogs: DogHealth[];
+  needs_attention: number;
+}
+
+export interface DogHealth {
+  name: string;
+  state: string;
+  session_status: string;
+  needs_attention: boolean;
+}
+
 // From `gt mol current --json`
 export interface MoleculeStatus {
   identity: string;

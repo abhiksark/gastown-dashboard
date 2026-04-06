@@ -27,6 +27,7 @@ import { CostsPage } from "@/pages/costs";
 import { AuditPage } from "@/pages/audit";
 
 import { DeaconPage } from "@/pages/deacon";
+import { DoctorPage } from "@/pages/doctor";
 import { DogsPage } from "@/pages/dogs";
 import { PatrolsPage } from "@/pages/patrols";
 import { MountainsPage } from "@/pages/mountains";
@@ -66,6 +67,7 @@ export function App() {
               <Route path="/costs" element={<CostsPage />} />
               <Route path="/audit" element={<AuditPage />} />
               <Route path="/deacon" element={<DeaconPage />} />
+              <Route path="/doctor" element={<DoctorPage />} />
               <Route path="/dogs" element={<DogsPage />} />
               <Route path="/patrols" element={<PatrolsPage />} />
               <Route path="/mountains" element={<MountainsPage />} />

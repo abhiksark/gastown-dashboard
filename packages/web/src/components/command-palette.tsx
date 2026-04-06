@@ -45,10 +45,10 @@ const pages = [
   { label: "Mail", path: "/mail", icon: Mail },
   { label: "Workflows", path: "/workflows", icon: FlaskConical },
   { label: "Deacon", path: "/deacon", icon: Shield },
+  { label: "Doctor", path: "/doctor", icon: Stethoscope },
   { label: "Dogs", path: "/dogs", icon: Dog },
   { label: "Patrols", path: "/patrols", icon: ShieldCheck },
   { label: "Mountains", path: "/mountains", icon: Mountain },
-  { label: "Doctor", path: "/doctor", icon: Stethoscope },
   { label: "Pull Requests", path: "/prs", icon: GitPullRequest },
 ];
 

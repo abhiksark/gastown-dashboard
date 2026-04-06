@@ -4,9 +4,9 @@ import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
 import { InlineStatus } from "@/components/inline-status";
 import { apiPost } from "@/lib/api";
-import type { Rig, Agent, Bead, PolecatStatus, Session } from "@/lib/types";
+import type { Rig, Agent, Bead, PolecatStatus, Session, PullRequest } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { Server, ArrowLeft, RotateCw, Play, Square, Bomb } from "lucide-react";
+import { Server, ArrowLeft, RotateCw, Play, Square, Bomb, GitPullRequest } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   BarChart,
@@ -39,6 +39,10 @@ export function RigDetailPage() {
     10000
   );
   const { data: sessions, refetch: refetchSessions } = useFetch<Session[]>("/sessions", 10000);
+  const { data: prData } = useFetch<{ rig: string; prs: PullRequest[]; local?: boolean }>(
+    `/prs/${encodeURIComponent(name || "")}`,
+    30000
+  );
   const [restartingPolecat, setRestartingPolecat] = useState<string | null>(null);
   const [nukingPolecat, setNukingPolecat] = useState<string | null>(null);
   const [witnessAction, setWitnessAction] = useState<string | null>(null);
@@ -389,6 +393,47 @@ export function RigDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Pull Requests */}
+      {prData && !prData.local && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-zinc-100">
+              Pull Requests ({prData.prs.filter((p) => p.state === "OPEN").length} open)
+            </h3>
+            <Link to="/prs" className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1">
+              <GitPullRequest className="h-3 w-3" /> View all
+            </Link>
+          </div>
+          {prData.prs.length === 0 ? (
+            <p className="text-xs text-zinc-600">No pull requests</p>
+          ) : (
+            <div className="rounded-lg border border-[var(--color-border)] overflow-hidden">
+              <table className="w-full text-sm">
+                <tbody>
+                  {prData.prs.slice(0, 5).map((pr) => (
+                    <tr key={pr.number} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors">
+                      <td className="px-4 py-2 text-xs text-zinc-500 tabular-nums">#{pr.number}</td>
+                      <td className="px-4 py-2">
+                        <a href={pr.url} target="_blank" rel="noopener noreferrer" className="text-xs text-zinc-200 hover:underline truncate block max-w-xs">
+                          {pr.title}
+                        </a>
+                      </td>
+                      <td className="px-4 py-2">
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                          pr.state === "OPEN" ? "bg-emerald-500/10 text-emerald-400" :
+                          pr.state === "MERGED" ? "bg-purple-500/10 text-purple-400" :
+                          "bg-red-500/10 text-red-400"
+                        }`}>{pr.state.toLowerCase()}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

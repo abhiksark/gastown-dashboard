@@ -330,6 +330,19 @@ export interface MountainBead {
   assignee: string;
 }
 
+// From gh pr list --json
+export interface PullRequest {
+  number: number;
+  title: string;
+  state: string;
+  author: { login: string };
+  createdAt: string;
+  headRefName: string;
+  url: string;
+  labels: { name: string }[];
+  isDraft: boolean;
+}
+
 // From `gt mol current --json`
 export interface MoleculeStatus {
   identity: string;

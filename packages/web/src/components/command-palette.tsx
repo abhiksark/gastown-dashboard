@@ -30,6 +30,7 @@ import {
   ShieldCheck,
   Mountain,
   Stethoscope,
+  GitPullRequest,
 } from "lucide-react";
 
 const pages = [
@@ -48,6 +49,7 @@ const pages = [
   { label: "Patrols", path: "/patrols", icon: ShieldCheck },
   { label: "Mountains", path: "/mountains", icon: Mountain },
   { label: "Doctor", path: "/doctor", icon: Stethoscope },
+  { label: "Pull Requests", path: "/prs", icon: GitPullRequest },
 ];
 
 export function CommandPalette() {

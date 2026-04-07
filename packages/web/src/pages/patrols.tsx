@@ -56,7 +56,23 @@ function formatDate(ts: string): string {
 }
 
 export function PatrolsPage() {
-  const { data: scan, loading: scanLoading, error: scanError } = useFetch<PatrolScan>("/patrols/active", 15000);
+  const { data: scanMap, loading: scanLoading, error: scanError } = useFetch<Record<string, PatrolScan>>("/patrols/active", 15000);
+
+  // Aggregate scan results across all rigs
+  const scan = scanMap ? (() => {
+    const rigs = Object.values(scanMap).filter((v) => v && typeof v === "object" && "zombies" in v);
+    if (rigs.length === 0) return null;
+    return {
+      timestamp: rigs.reduce((latest, r) => r.timestamp > latest ? r.timestamp : latest, ""),
+      zombies: { checked: rigs.reduce((s, r) => s + (r.zombies?.checked ?? 0), 0), found: rigs.reduce((s, r) => s + (r.zombies?.found ?? 0), 0) },
+      stalls: {
+        checked: rigs.reduce((s, r) => s + (r.stalls?.checked ?? 0), 0),
+        found: rigs.reduce((s, r) => s + (r.stalls?.found ?? 0), 0),
+        stalls: rigs.flatMap((r) => r.stalls?.stalls ?? []),
+      },
+      completions: { checked: rigs.reduce((s, r) => s + (r.completions?.checked ?? 0), 0), found: rigs.reduce((s, r) => s + (r.completions?.found ?? 0), 0) },
+    };
+  })() : null;
   const { data: events, loading: eventsLoading } = useFetch<PatrolEvent[]>("/patrols/events?limit=100", 10000);
   const [typeFilter, setTypeFilter] = useState<string>("all");
 

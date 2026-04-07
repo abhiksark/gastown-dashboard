@@ -12,10 +12,11 @@ const BEADS_DIR = process.env.BEADS_DIR || path.join(GT_HOME, ".beads");
 interface CacheEntry {
   data: unknown;
   expiresAt: number;
+  fetchedAt: number;
 }
 
 const cache = new Map<string, CacheEntry>();
-const DEFAULT_TTL = 7000;
+const DEFAULT_TTL = 15000; // 15 seconds — reads are fast from cache, background sync keeps it warm
 
 export async function runCli(
   command: string,
@@ -45,7 +46,6 @@ export async function runCli(
     data = JSON.parse(stdout);
   } catch {
     // stdout may have warning lines before JSON — try to find the real JSON
-    // Look for `[{` (array of objects) or `{"` (object) as more reliable markers
     const arrayStart = stdout.indexOf("[{");
     const objStart = stdout.indexOf('{"');
     const fallbackArray = stdout.indexOf("[\n");
@@ -62,7 +62,7 @@ export async function runCli(
     }
   }
 
-  cache.set(key, { data, expiresAt: now + ttl });
+  cache.set(key, { data, expiresAt: now + ttl, fetchedAt: now });
   return data;
 }
 
@@ -81,6 +81,38 @@ export async function runAction(
       BEADS_DIR,
     },
   });
+  // Invalidate cache after write actions
   cache.clear();
   return { stdout: stdout.trim(), stderr: stderr.trim() };
 }
+
+// Background sync — keeps hot data warm so page loads are instant
+// Runs every 10 seconds, refreshing the most-used endpoints sequentially
+const HOT_COMMANDS: [string, string[]][] = [
+  ["gt", ["rig", "list", "--json"]],
+  ["gt", ["agents", "list", "--all"]],
+  ["gt", ["session", "list", "--json"]],
+  ["gt", ["scheduler", "status", "--json"]],
+  ["bd", ["list", "--all", "--json"]],
+];
+
+let syncRunning = false;
+
+async function backgroundSync() {
+  if (syncRunning) return;
+  syncRunning = true;
+  for (const [cmd, args] of HOT_COMMANDS) {
+    try {
+      await runCli(cmd, args, 20000); // 20s TTL for background-synced data
+    } catch {
+      // Ignore failures — cache retains stale data until next successful sync
+    }
+  }
+  syncRunning = false;
+}
+
+// Start background sync after 2s startup delay, then every 10s
+setTimeout(() => {
+  backgroundSync();
+  setInterval(backgroundSync, 10000);
+}, 2000);

@@ -28,7 +28,6 @@ import deaconRoutes from "./routes/deacon.js";
 import doctorRoutes from "./routes/doctor.js";
 import gatesRoutes from "./routes/gates.js";
 import patrolsRoutes from "./routes/patrols.js";
-import doctorRoutes from "./routes/doctor.js";
 import prsRoutes from "./routes/prs.js";
 
 
@@ -66,7 +65,6 @@ app.use("/api/gates", gatesRoutes);
 app.use("/api/dogs", dogsRoutes);
 app.use("/api/patrols", patrolsRoutes);
 app.use("/api/mountains", mountainsRoutes);
-app.use("/api/doctor", doctorRoutes);
 app.use("/api/prs", prsRoutes);
 
 // In production, serve built frontend static files

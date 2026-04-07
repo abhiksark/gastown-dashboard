@@ -31,7 +31,6 @@ import { DoctorPage } from "@/pages/doctor";
 import { DogsPage } from "@/pages/dogs";
 import { PatrolsPage } from "@/pages/patrols";
 import { MountainsPage } from "@/pages/mountains";
-import { DoctorPage } from "@/pages/doctor";
 import { PRsPage } from "@/pages/prs";
 
 export function App() {
@@ -71,7 +70,6 @@ export function App() {
               <Route path="/dogs" element={<DogsPage />} />
               <Route path="/patrols" element={<PatrolsPage />} />
               <Route path="/mountains" element={<MountainsPage />} />
-              <Route path="/doctor" element={<DoctorPage />} />
               <Route path="/prs" element={<PRsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Routes>

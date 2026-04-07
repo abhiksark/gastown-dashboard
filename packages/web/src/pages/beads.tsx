@@ -11,8 +11,11 @@ import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { InlineStatus } from "@/components/inline-status";
 import type { Bead } from "@/lib/types";
-import { X, CircleDot, Plus, Zap, Copy, Eye, List, GitBranch, ArrowDown, ArrowUp } from "lucide-react";
+import { X, CircleDot, Plus, Zap, Copy, Eye, List, GitBranch, ArrowDown, ArrowUp, UserPlus, Anchor, Unlink } from "lucide-react";
 import { ExportButton } from "@/components/export-button";
+import { AssignDialog } from "@/components/assign-dialog";
+import { useFetch } from "@/hooks/use-fetch";
+import type { Agent } from "@/lib/types";
 
 type SortKey = "priority" | "updated_at" | "created_at" | "status";
 type ViewMode = "list" | "graph";
@@ -36,6 +39,11 @@ export function BeadsPage() {
   const [showCloseInput, setShowCloseInput] = useState(false);
   const [closing, setClosing] = useState(false);
   const [ctxMenu, setCtxMenu] = useState<{ pos: { x: number; y: number }; bead: Bead } | null>(null);
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [hookTarget, setHookTarget] = useState("");
+  const [showHookSelect, setShowHookSelect] = useState(false);
+  const [hooking, setHooking] = useState(false);
+  const { data: agents } = useFetch<Agent[]>("/agents", 30000);
   const { addToast } = useToast();
 
   const closeCtxMenu = useCallback(() => setCtxMenu(null), []);
@@ -151,6 +159,13 @@ export function BeadsPage() {
             title="New Bead"
           >
             <Plus className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => setAssignOpen(true)}
+            className="rounded-md border border-[var(--color-border)] p-1.5 text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors"
+            title="Assign Work"
+          >
+            <UserPlus className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => setSlingOpen(true)}
@@ -506,6 +521,30 @@ export function BeadsPage() {
                   >
                     <Zap className="h-3 w-3" /> Sling
                   </button>
+                  {selected.status === "open" && (
+                    <button
+                      onClick={() => setShowHookSelect(!showHookSelect)}
+                      className="flex-1 rounded-md border border-cyan-900/50 px-3 py-1.5 text-xs text-cyan-400 hover:text-cyan-300 hover:border-cyan-700 transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <Anchor className="h-3 w-3" /> Hook
+                    </button>
+                  )}
+                  {selected.status === "hooked" && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          await apiPost("/actions/unhook", { target: selected.assignee });
+                          addToast("Unhooked", "success");
+                          refetch();
+                        } catch (err: any) {
+                          addToast(`Failed: ${err.message}`, "error");
+                        }
+                      }}
+                      className="flex-1 rounded-md border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <Unlink className="h-3 w-3" /> Unhook
+                    </button>
+                  )}
                   {selected.dependency_count > 0 && selected.status !== "closed" && (
                     <button
                       onClick={async () => {
@@ -531,6 +570,42 @@ export function BeadsPage() {
                     </button>
                   )}
                 </div>
+                {showHookSelect && (
+                  <div className="flex gap-2">
+                    <select
+                      value={hookTarget}
+                      onChange={(e) => setHookTarget(e.target.value)}
+                      className="flex-1 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1.5 text-xs text-zinc-200 outline-none focus:border-zinc-500"
+                    >
+                      <option value="">Select agent...</option>
+                      {(agents || []).map((a) => {
+                        const val = a.rig ? `${a.rig}/${a.name}` : a.name;
+                        return <option key={val} value={val}>{a.name} ({a.role}){a.rig ? ` — ${a.rig}` : ""}</option>;
+                      })}
+                    </select>
+                    <button
+                      onClick={async () => {
+                        if (!hookTarget) return;
+                        setHooking(true);
+                        try {
+                          await apiPost("/actions/hook", { bead: selected.id, target: hookTarget });
+                          addToast(`Hooked to ${hookTarget}`, "success");
+                          setShowHookSelect(false);
+                          setHookTarget("");
+                          refetch();
+                        } catch (err: any) {
+                          addToast(`Failed: ${err.message}`, "error");
+                        } finally {
+                          setHooking(false);
+                        }
+                      }}
+                      disabled={hooking || !hookTarget}
+                      className="rounded-md bg-cyan-600 px-3 py-1.5 text-xs text-white hover:bg-cyan-500 transition-colors disabled:opacity-50"
+                    >
+                      {hooking ? "..." : "Hook"}
+                    </button>
+                  </div>
+                )}
                 {showCloseInput && (
                   <div className="flex gap-2">
                     <input
@@ -581,6 +656,7 @@ export function BeadsPage() {
 
       <CreateBeadDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={refetch} />
       <SlingDialog open={slingOpen} onClose={() => setSlingOpen(false)} preselectedBead={selected?.id} />
+      <AssignDialog open={assignOpen} onClose={() => setAssignOpen(false)} onAssigned={refetch} />
     </div>
   );
 }

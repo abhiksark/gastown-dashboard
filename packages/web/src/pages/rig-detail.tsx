@@ -46,6 +46,10 @@ export function RigDetailPage() {
   const [restartingPolecat, setRestartingPolecat] = useState<string | null>(null);
   const [nukingPolecat, setNukingPolecat] = useState<string | null>(null);
   const [witnessAction, setWitnessAction] = useState<string | null>(null);
+  const [refineryAction, setRefineryAction] = useState<string | null>(null);
+  const [crewDialogOpen, setCrewDialogOpen] = useState(false);
+  const [crewName, setCrewName] = useState("");
+  const [crewStarting, setCrewStarting] = useState(false);
   const { addToast } = useToast();
 
   const rig = rigs?.find((r) => r.name === name);
@@ -86,6 +90,33 @@ export function RigDetailPage() {
       addToast(`Witness ${action} failed: ${err.message}`, "error");
     } finally {
       setWitnessAction(null);
+    }
+  }
+
+  async function handleRefinery(action: "start" | "stop") {
+    setRefineryAction(action);
+    try {
+      await apiPost(`/control/refinery/${encodeURIComponent(name || "")}/${action}`);
+      addToast(`Refinery ${action}ed`, "success");
+    } catch (err: any) {
+      addToast(`Refinery ${action} failed: ${err.message}`, "error");
+    } finally {
+      setRefineryAction(null);
+    }
+  }
+
+  async function handleStartCrew() {
+    if (!crewName.trim()) return;
+    setCrewStarting(true);
+    try {
+      await apiPost(`/control/crew/${encodeURIComponent(name || "")}/${encodeURIComponent(crewName.trim())}/start`);
+      addToast(`Crew workspace ${crewName.trim()} started`, "success");
+      setCrewDialogOpen(false);
+      setCrewName("");
+    } catch (err: any) {
+      addToast(`Crew start failed: ${err.message}`, "error");
+    } finally {
+      setCrewStarting(false);
     }
   }
 
@@ -152,9 +183,15 @@ export function RigDetailPage() {
             <p className="text-lg font-semibold text-zinc-100 tabular-nums">{rig.polecats}</p>
             <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-0.5">Polecats</p>
           </div>
-          <div className="rounded-md bg-zinc-900 p-3 text-center">
+          <div className="rounded-md bg-zinc-900 p-3 text-center space-y-2">
             <p className="text-lg font-semibold text-zinc-100 tabular-nums">{rig.crew}</p>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-0.5">Crew</p>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Crew</p>
+            <button
+              onClick={() => setCrewDialogOpen(true)}
+              className="rounded px-1.5 py-0.5 text-[10px] text-emerald-400 border border-emerald-800 hover:bg-emerald-900/50 transition-colors"
+            >
+              <Play className="h-2.5 w-2.5 inline" /> Start Crew
+            </button>
           </div>
           <div className="rounded-md bg-zinc-900 p-3 text-center space-y-2">
             <StatusBadge status={rig.witness} />
@@ -187,9 +224,29 @@ export function RigDetailPage() {
               </button>
             </div>
           </div>
-          <div className="rounded-md bg-zinc-900 p-3 text-center">
+          <div className="rounded-md bg-zinc-900 p-3 text-center space-y-2">
             <StatusBadge status={rig.refinery} />
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Refinery</p>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Refinery</p>
+            <div className="flex justify-center gap-1">
+              {rig.refinery !== "running" && (
+                <button
+                  onClick={() => handleRefinery("start")}
+                  disabled={!!refineryAction}
+                  className="rounded px-1.5 py-0.5 text-[10px] text-emerald-400 border border-emerald-800 hover:bg-emerald-900/50 transition-colors disabled:opacity-50"
+                >
+                  <Play className="h-2.5 w-2.5 inline" /> Start
+                </button>
+              )}
+              {rig.refinery === "running" && (
+                <button
+                  onClick={() => handleRefinery("stop")}
+                  disabled={!!refineryAction}
+                  className="rounded px-1.5 py-0.5 text-[10px] text-red-400 border border-red-900 hover:bg-red-900/50 transition-colors disabled:opacity-50"
+                >
+                  <Square className="h-2.5 w-2.5 inline" /> Stop
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -393,6 +450,42 @@ export function RigDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Start Crew dialog */}
+      {crewDialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-6 w-full max-w-sm space-y-4">
+            <h3 className="text-sm font-semibold text-zinc-100">Start Crew Member</h3>
+            <div>
+              <label className="text-xs text-zinc-400 block mb-1">Crew member name</label>
+              <input
+                type="text"
+                value={crewName}
+                onChange={(e) => setCrewName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleStartCrew(); }}
+                placeholder="e.g. dev"
+                autoFocus
+                className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => { setCrewDialogOpen(false); setCrewName(""); }}
+                className="rounded-md px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleStartCrew}
+                disabled={!crewName.trim() || crewStarting}
+                className="rounded-md px-3 py-1.5 text-xs font-medium text-emerald-400 border border-emerald-800 hover:bg-emerald-900/50 transition-colors disabled:opacity-50"
+              >
+                {crewStarting ? "Starting\u2026" : "Start"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pull Requests */}
       {prData && !prData.local && (

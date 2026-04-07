@@ -59,4 +59,35 @@ router.post("/polecat/:rig/:name/nuke", async (req, res) => {
   }
 });
 
+// POST /api/control/refinery/:rig/start
+router.post("/refinery/:rig/start", async (req, res) => {
+  try {
+    const result = await runAction("gt", ["refinery", "start", req.params.rig]);
+    res.json({ ok: true, output: result.stdout });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/control/refinery/:rig/stop
+router.post("/refinery/:rig/stop", async (req, res) => {
+  try {
+    const result = await runAction("gt", ["refinery", "stop", req.params.rig]);
+    res.json({ ok: true, output: result.stdout });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/control/crew/:rig/:name/start
+router.post("/crew/:rig/:name/start", async (req, res) => {
+  try {
+    const target = `${req.params.rig}/${req.params.name}`;
+    const result = await runAction("gt", ["start", "crew", target]);
+    res.json({ ok: true, output: result.stdout });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

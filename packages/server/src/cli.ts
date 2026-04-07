@@ -68,10 +68,11 @@ export async function runCli(
 
 export async function runAction(
   command: string,
-  args: string[]
+  args: string[],
+  timeoutMs = 30000
 ): Promise<{ stdout: string; stderr: string }> {
   const { stdout, stderr } = await exec(command, args, {
-    timeout: 30000,
+    timeout: timeoutMs,
     maxBuffer: 10 * 1024 * 1024,
     cwd: GT_HOME,
     env: {

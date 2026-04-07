@@ -1,6 +1,6 @@
 {
   "name": "gastown-dashboard",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Gas Town Dashboard — monitor and control your Gas Town multi-agent system",
   "type": "module",
   "bin": {

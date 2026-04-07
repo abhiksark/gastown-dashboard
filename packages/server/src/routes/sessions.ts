@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { runCli } from "../cli.js";
+import { runCli, runAction } from "../cli.js";
 
 const router = Router();
 
@@ -68,6 +68,35 @@ router.get("/witness/:rig", async (req, res) => {
     res.json(data ?? { running: false, rig_name: req.params.rig });
   } catch (err: any) {
     res.json({ running: false, rig_name: req.params.rig });
+  }
+});
+
+// GET /api/sessions/:rig/:name/output — capture terminal output
+router.get("/:rig/:name/output", async (req, res) => {
+  try {
+    const lines = Math.min(Number(req.query.lines) || 100, 1000);
+    const target = `${req.params.rig}/${req.params.name}`;
+    const result = await runAction("gt", ["session", "capture", target, "-n", String(lines)]);
+    res.json({ output: result.stdout, lines });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, output: "" });
+  }
+});
+
+// GET /api/sessions/mayor/output — capture mayor session output
+router.get("/mayor/output", async (req, res) => {
+  try {
+    const lines = Math.min(Number(req.query.lines) || 100, 1000);
+    // Mayor session name pattern: hq-mayor
+    const { execFile } = await import("node:child_process");
+    const { promisify } = await import("node:util");
+    const exec = promisify(execFile);
+    const { stdout } = await exec("tmux", [
+      "capture-pane", "-t", "hq-mayor", "-p", "-S", `-${lines}`,
+    ], { timeout: 5000 });
+    res.json({ output: stdout, lines });
+  } catch (err: any) {
+    res.status(500).json({ error: "Mayor session not found or not running", output: "" });
   }
 });
 

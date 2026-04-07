@@ -4,13 +4,15 @@ import { InlineStatus } from "@/components/inline-status";
 import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { Session } from "@/lib/types";
-import { Terminal, Activity, CircleOff, RotateCw, Bomb } from "lucide-react";
+import { Terminal, Activity, CircleOff, RotateCw, Bomb, MonitorPlay } from "lucide-react";
 import { ExportButton } from "@/components/export-button";
+import { SessionOutput } from "@/components/session-output";
 
 export function SessionsPage() {
   const { data, loading, error, refetch } = useRealtime<Session[]>("/sessions", 5000);
   const [restarting, setRestarting] = useState<string | null>(null);
   const [nuking, setNuking] = useState<string | null>(null);
+  const [viewingOutput, setViewingOutput] = useState<{ rig: string; name: string } | null>(null);
   const { addToast } = useToast();
 
   async function handleRestartSession(rig: string, polecat: string) {
@@ -187,6 +189,13 @@ export function SessionsPage() {
                         <td className="px-4 py-2 text-right">
                           <div className="flex items-center justify-end gap-1">
                             <button
+                              onClick={() => setViewingOutput({ rig: session.rig, name: session.polecat })}
+                              className="rounded px-2 py-0.5 text-[11px] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                              title="View output"
+                            >
+                              <MonitorPlay className="h-3 w-3 inline" />
+                            </button>
+                            <button
                               onClick={() => handleRestartSession(session.rig, session.polecat)}
                               disabled={restarting === key}
                               className="rounded px-2 py-0.5 text-[11px] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors disabled:opacity-50"
@@ -214,6 +223,14 @@ export function SessionsPage() {
             );
           })}
         </div>
+      )}
+      {viewingOutput && (
+        <SessionOutput
+          rig={viewingOutput.rig}
+          name={viewingOutput.name}
+          open={true}
+          onClose={() => setViewingOutput(null)}
+        />
       )}
     </div>
   );

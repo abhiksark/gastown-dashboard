@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { runCli } from "../cli.js";
+import { runCli, runAction } from "../cli.js";
 
 const router = Router();
 
@@ -62,6 +62,51 @@ router.get("/:id", async (req, res) => {
   try {
     const data = await runCli("gt", ["convoy", "show", req.params.id, "--json"]);
     res.json(data ?? null);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/convoys/create — create a new convoy
+router.post("/create", async (req, res) => {
+  try {
+    const { title, beads, merge } = req.body;
+    if (!title) {
+      res.status(400).json({ error: "title is required" });
+      return;
+    }
+    const beadIds: string[] = Array.isArray(beads) ? beads : [];
+    const args = ["convoy", "create", title, ...beadIds];
+    if (merge) args.push(`--merge=${merge}`);
+    const result = await runAction("gt", args);
+    res.json({ ok: true, output: result.stdout });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/convoys/:id/add — add beads to a convoy
+router.post("/:id/add", async (req, res) => {
+  try {
+    const { beads } = req.body;
+    const beadIds: string[] = Array.isArray(beads) ? beads : [];
+    if (beadIds.length === 0) {
+      res.status(400).json({ error: "beads array is required" });
+      return;
+    }
+    const result = await runAction("gt", ["convoy", "add", req.params.id, ...beadIds]);
+    res.json({ ok: true, output: result.stdout });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/convoys/:id/archive — archive (close) a convoy
+router.post("/:id/archive", async (req, res) => {
+  try {
+    const reason = req.body.reason || "Archived from dashboard";
+    const result = await runAction("bd", ["close", req.params.id, "--reason", reason]);
+    res.json({ ok: true, output: result.stdout });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

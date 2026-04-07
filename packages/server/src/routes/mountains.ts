@@ -43,4 +43,29 @@ router.post("/:id/resume", async (req, res) => {
   }
 });
 
+// POST /api/mountains/activate — activate a mountain from an epic
+router.post("/activate", async (req, res) => {
+  try {
+    const { epic } = req.body;
+    if (!epic) {
+      res.status(400).json({ error: "epic id is required" });
+      return;
+    }
+    const result = await runAction("gt", ["mountain", epic, "--force"]);
+    res.json({ ok: true, output: result.stdout });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/mountains/:id/cancel — cancel a mountain
+router.post("/:id/cancel", async (req, res) => {
+  try {
+    const result = await runAction("gt", ["mountain", "cancel", req.params.id]);
+    res.json({ ok: true, output: result.stdout });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

@@ -4,7 +4,8 @@ import { InlineStatus } from "@/components/inline-status";
 import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { Session } from "@/lib/types";
-import { Terminal, Activity, CircleOff, RotateCw, Bomb, MonitorPlay } from "lucide-react";
+import { Link } from "react-router";
+import { Terminal, Activity, CircleOff, RotateCw, Bomb, MonitorPlay, FileText } from "lucide-react";
 import { ExportButton } from "@/components/export-button";
 import { SessionOutput } from "@/components/session-output";
 
@@ -195,6 +196,13 @@ export function SessionsPage() {
                             >
                               <MonitorPlay className="h-3 w-3 inline" />
                             </button>
+                            <Link
+                              to={`/sessions/${encodeURIComponent(session.rig)}/${encodeURIComponent(session.polecat)}/transcript`}
+                              className="rounded px-2 py-0.5 text-[11px] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                              title="Full transcript"
+                            >
+                              <FileText className="h-3 w-3 inline" />
+                            </Link>
                             <button
                               onClick={() => handleRestartSession(session.rig, session.polecat)}
                               disabled={restarting === key}

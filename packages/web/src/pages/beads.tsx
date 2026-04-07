@@ -11,7 +11,7 @@ import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { InlineStatus } from "@/components/inline-status";
 import type { Bead } from "@/lib/types";
-import { X, CircleDot, Plus, Zap, Copy, Eye, List, GitBranch } from "lucide-react";
+import { X, CircleDot, Plus, Zap, Copy, Eye, List, GitBranch, ArrowDown, ArrowUp } from "lucide-react";
 import { ExportButton } from "@/components/export-button";
 
 type SortKey = "priority" | "updated_at" | "created_at" | "status";
@@ -74,6 +74,20 @@ export function BeadsPage() {
     }
     return c;
   }, [data]);
+
+  // Map of all beads by ID for dependency lookups
+  const beadMap = useMemo(() => {
+    if (!data) return new Map<string, Bead>();
+    return new Map(data.map((b) => [b.id, b]));
+  }, [data]);
+
+  // Compute beads that depend on the selected bead
+  const dependents = useMemo(() => {
+    if (!selected || !data) return [];
+    return data.filter(
+      (b) => b.dependencies?.some((dep) => dep.depends_on_id === selected.id)
+    );
+  }, [data, selected]);
 
   useTableKeyboard({
     onMove: useCallback((delta: number) => {
@@ -225,6 +239,55 @@ export function BeadsPage() {
                   <span className="text-xs text-zinc-500">Assignee</span>
                   <span className="text-xs text-zinc-300">{selected.assignee || "\u2014"}</span>
                 </div>
+                {selected.dependencies && selected.dependencies.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <ArrowDown className="h-3 w-3 text-zinc-500" />
+                      <span className="text-xs text-zinc-500">Depends on ({selected.dependencies.length})</span>
+                    </div>
+                    <div className="space-y-1">
+                      {selected.dependencies.map((dep) => {
+                        const linked = beadMap.get(dep.depends_on_id);
+                        return (
+                          <button
+                            key={dep.depends_on_id}
+                            onClick={() => { if (linked) setSelected(linked); }}
+                            className="w-full text-left rounded bg-zinc-900 px-2.5 py-1.5 hover:bg-zinc-800 transition-colors group"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-mono text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">{dep.depends_on_id}</span>
+                              {linked ? <InlineStatus status={linked.status} /> : <span className="text-[10px] text-zinc-600">{dep.type}</span>}
+                            </div>
+                            {linked && <p className="text-[11px] text-zinc-400 truncate mt-0.5">{linked.title}</p>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                {dependents.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <ArrowUp className="h-3 w-3 text-zinc-500" />
+                      <span className="text-xs text-zinc-500">Depended on by ({dependents.length})</span>
+                    </div>
+                    <div className="space-y-1">
+                      {dependents.map((dep) => (
+                        <button
+                          key={dep.id}
+                          onClick={() => setSelected(dep)}
+                          className="w-full text-left rounded bg-zinc-900 px-2.5 py-1.5 hover:bg-zinc-800 transition-colors group"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-mono text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">{dep.id}</span>
+                            <InlineStatus status={dep.status} />
+                          </div>
+                          <p className="text-[11px] text-zinc-400 truncate mt-0.5">{dep.title}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Description */}
@@ -349,27 +412,61 @@ export function BeadsPage() {
                     <span className="text-xs text-zinc-300">{selected.created_by}</span>
                   </div>
                 )}
-                {selected.dependency_count > 0 && (
+                {selected.dependencies && selected.dependencies.length > 0 && (
                   <div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-zinc-500">Dependencies ({selected.dependency_count})</span>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <ArrowDown className="h-3 w-3 text-zinc-500" />
+                      <span className="text-xs text-zinc-500">Depends on ({selected.dependencies.length})</span>
                     </div>
-                    {selected.dependencies && selected.dependencies.length > 0 && (
-                      <div className="mt-1 space-y-1">
-                        {selected.dependencies.map((dep) => (
-                          <div key={dep.depends_on_id} className="flex items-center justify-between rounded bg-zinc-900 px-2 py-1">
-                            <span className="font-mono text-[10px] text-zinc-400">{dep.depends_on_id}</span>
-                            <span className="text-[10px] text-zinc-600">{dep.type}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <div className="space-y-1">
+                      {selected.dependencies.map((dep) => {
+                        const linked = beadMap.get(dep.depends_on_id);
+                        return (
+                          <button
+                            key={dep.depends_on_id}
+                            onClick={() => {
+                              if (linked) setSelected(linked);
+                            }}
+                            className="w-full text-left rounded bg-zinc-900 px-2.5 py-1.5 hover:bg-zinc-800 transition-colors group"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-mono text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">{dep.depends_on_id}</span>
+                              {linked ? (
+                                <InlineStatus status={linked.status} />
+                              ) : (
+                                <span className="text-[10px] text-zinc-600">{dep.type}</span>
+                              )}
+                            </div>
+                            {linked && (
+                              <p className="text-[11px] text-zinc-400 truncate mt-0.5">{linked.title}</p>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
-                {selected.dependent_count > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-zinc-500">Dependents</span>
-                    <span className="text-xs text-zinc-300">{selected.dependent_count}</span>
+                {dependents.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <ArrowUp className="h-3 w-3 text-zinc-500" />
+                      <span className="text-xs text-zinc-500">Depended on by ({dependents.length})</span>
+                    </div>
+                    <div className="space-y-1">
+                      {dependents.map((dep) => (
+                        <button
+                          key={dep.id}
+                          onClick={() => setSelected(dep)}
+                          className="w-full text-left rounded bg-zinc-900 px-2.5 py-1.5 hover:bg-zinc-800 transition-colors group"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-mono text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">{dep.id}</span>
+                            <InlineStatus status={dep.status} />
+                          </div>
+                          <p className="text-[11px] text-zinc-400 truncate mt-0.5">{dep.title}</p>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
                 {selected.comment_count > 0 && (

@@ -82,29 +82,32 @@ export function CostsPage() {
         <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="h-4 w-4 text-zinc-400" />
-            <span className="text-xs text-zinc-500">Today</span>
+            <span className="text-xs text-zinc-500">All Recorded</span>
           </div>
           <p className="text-2xl font-semibold text-zinc-100 tabular-nums">
             {today ? fmt(today.total_usd) : "\u2014"}
           </p>
+          <p className="text-[10px] text-zinc-600 mt-1">from session log</p>
         </div>
         <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4">
           <div className="flex items-center gap-2 mb-2">
             <Cpu className="h-4 w-4 text-zinc-400" />
-            <span className="text-xs text-zinc-500">This Week</span>
+            <span className="text-xs text-zinc-500">Mayor</span>
           </div>
           <p className="text-2xl font-semibold text-zinc-100 tabular-nums">
-            {week ? fmt(week.total_usd) : "\u2014"}
+            {fmt(sessions.find(s => s.role === "mayor")?.cost_usd ?? 0)}
           </p>
+          <p className="text-[10px] text-zinc-600 mt-1">highest spender</p>
         </div>
         <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4">
           <div className="flex items-center gap-2 mb-2">
             <Server className="h-4 w-4 text-zinc-400" />
-            <span className="text-xs text-zinc-500">All Time</span>
+            <span className="text-xs text-zinc-500">By Rig</span>
           </div>
           <p className="text-2xl font-semibold text-zinc-100 tabular-nums">
             {byRig ? fmt(byRig.total_usd) : "\u2014"}
           </p>
+          <p className="text-[10px] text-zinc-600 mt-1">all time total</p>
         </div>
       </div>
 

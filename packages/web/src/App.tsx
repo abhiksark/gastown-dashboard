@@ -55,6 +55,7 @@ export function App() {
               <Route path="/agents" element={<AgentsPage />} />
               <Route path="/agents/:name" element={<AgentDetailPage />} />
               <Route path="/sessions" element={<SessionsPage />} />
+              <Route path="/sessions/:rig/:name/transcript" element={<TranscriptPage />} />
               <Route path="/beads" element={<BeadsPage />} />
               <Route path="/rigs" element={<RigsPage />} />
               <Route path="/rigs/:name" element={<RigDetailPage />} />

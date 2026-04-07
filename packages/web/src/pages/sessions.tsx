@@ -189,6 +189,13 @@ export function SessionsPage() {
                         </td>
                         <td className="px-4 py-2 text-right">
                           <div className="flex items-center justify-end gap-1">
+                            <Link
+                              to={`/sessions/${encodeURIComponent(session.rig)}/${encodeURIComponent(session.polecat)}/transcript`}
+                              className="rounded px-2 py-0.5 text-[11px] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                              title="View transcript"
+                            >
+                              <FileText className="h-3 w-3 inline" />
+                            </Link>
                             <button
                               onClick={() => setViewingOutput({ rig: session.rig, name: session.polecat })}
                               className="rounded px-2 py-0.5 text-[11px] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"

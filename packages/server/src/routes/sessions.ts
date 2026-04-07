@@ -13,6 +13,18 @@ router.get("/", async (_req, res) => {
   }
 });
 
+// GET /api/sessions/:rig/:name/transcript — full session transcript (plain text)
+router.get("/:rig/:name/transcript", async (req, res) => {
+  const lines = String(req.query.lines || "500");
+  try {
+    const target = `${req.params.rig}/${req.params.name}`;
+    const data = await runCli("gt", ["session", "capture", target, "-n", lines], 0);
+    res.type("text/plain").send(String(data));
+  } catch (err: any) {
+    res.status(500).type("text/plain").send(`Error: ${err.message}`);
+  }
+});
+
 // GET /api/sessions/:rig/:name/health — health check for specific session
 router.get("/:rig/:name/health", async (req, res) => {
   try {

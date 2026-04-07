@@ -4,7 +4,7 @@ import { useSSE } from "@/hooks/use-sse";
 import { StatusBadge } from "@/components/status-badge";
 import { cn } from "@/lib/utils";
 import type { Agent, FeedEvent } from "@/lib/types";
-import { ArrowLeft, CheckCircle2, Clock, Flame, Target, MonitorPlay } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, Flame, Target, MonitorPlay, FileText } from "lucide-react";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { SessionOutput } from "@/components/session-output";
 
@@ -124,6 +124,7 @@ export function AgentDetailPage() {
           </div>
         )}
         <div className="ml-auto flex items-center gap-2">
+<<<<<<< HEAD
           {agent?.rig && (
             <button
               onClick={() => setOutputOpen(true)}
@@ -131,6 +132,16 @@ export function AgentDetailPage() {
             >
               <MonitorPlay className="h-3 w-3" /> Output
             </button>
+=======
+          {agent?.rig && name && (
+            <Link
+              to={`/sessions/${encodeURIComponent(agent.rig)}/${encodeURIComponent(name)}/transcript`}
+              className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+            >
+              <FileText className="h-3.5 w-3.5" />
+              Full Transcript
+            </Link>
+>>>>>>> 2343741 (feat: polecat transcript viewer with search and terminal-style UI (hq-48q))
           )}
           <span className={cn(
             "h-2 w-2 rounded-full",

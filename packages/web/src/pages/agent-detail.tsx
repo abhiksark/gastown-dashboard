@@ -4,8 +4,9 @@ import { useSSE } from "@/hooks/use-sse";
 import { StatusBadge } from "@/components/status-badge";
 import { cn } from "@/lib/utils";
 import type { Agent, FeedEvent } from "@/lib/types";
-import { ArrowLeft, CheckCircle2, Clock, Flame, Target } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, Flame, Target, MonitorPlay } from "lucide-react";
 import { useState, useRef, useEffect, useMemo } from "react";
+import { SessionOutput } from "@/components/session-output";
 
 const eventColors: Record<string, string> = {
   session_start: "text-blue-400",
@@ -55,6 +56,7 @@ export function AgentDetailPage() {
   );
   const { events: liveEvents, connected } = useSSE("/api/feed/stream");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  const [outputOpen, setOutputOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const agent = agents?.find((a) => a.name === name);
@@ -122,6 +124,14 @@ export function AgentDetailPage() {
           </div>
         )}
         <div className="ml-auto flex items-center gap-2">
+          {agent?.rig && (
+            <button
+              onClick={() => setOutputOpen(true)}
+              className="flex items-center gap-1.5 rounded-md border border-[var(--color-border)] px-2.5 py-1 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors"
+            >
+              <MonitorPlay className="h-3 w-3" /> Output
+            </button>
+          )}
           <span className={cn(
             "h-2 w-2 rounded-full",
             connected ? "bg-emerald-500" : "bg-red-500"
@@ -291,6 +301,14 @@ export function AgentDetailPage() {
           )}
         </div>
       </div>
+      {agent?.rig && (
+        <SessionOutput
+          rig={agent.rig}
+          name={agent.name}
+          open={outputOpen}
+          onClose={() => setOutputOpen(false)}
+        />
+      )}
     </div>
   );
 }

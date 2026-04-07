@@ -25,7 +25,7 @@ import { FeedPage } from "@/pages/feed";
 import { SettingsPage } from "@/pages/settings";
 import { CostsPage } from "@/pages/costs";
 import { AuditPage } from "@/pages/audit";
-import { TerminalPage } from "@/pages/terminal";
+
 import { DeaconPage } from "@/pages/deacon";
 import { DogsPage } from "@/pages/dogs";
 import { PatrolsPage } from "@/pages/patrols";
@@ -65,7 +65,6 @@ export function App() {
               <Route path="/feed" element={<FeedPage />} />
               <Route path="/costs" element={<CostsPage />} />
               <Route path="/audit" element={<AuditPage />} />
-              <Route path="/terminal" element={<TerminalPage />} />
               <Route path="/deacon" element={<DeaconPage />} />
               <Route path="/dogs" element={<DogsPage />} />
               <Route path="/patrols" element={<PatrolsPage />} />

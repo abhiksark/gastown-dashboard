@@ -29,7 +29,7 @@ import gatesRoutes from "./routes/gates.js";
 import patrolsRoutes from "./routes/patrols.js";
 import doctorRoutes from "./routes/doctor.js";
 import prsRoutes from "./routes/prs.js";
-import { attachTerminalWS } from "./terminal.js";
+
 
 const app = express();
 app.use(cors());
@@ -77,7 +77,7 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-export { app, attachTerminalWS };
+export { app };
 
 // Only auto-listen when run directly (not imported by CLI)
 const isDirectRun = process.argv[1]?.endsWith("index.ts") || process.argv[1]?.endsWith("index.js");
@@ -86,5 +86,4 @@ if (isDirectRun) {
   const server = app.listen(PORT, () => {
     console.log(`[gastown-server] listening on :${PORT}`);
   });
-  attachTerminalWS(server);
 }

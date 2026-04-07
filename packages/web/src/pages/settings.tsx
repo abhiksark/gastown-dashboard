@@ -114,7 +114,7 @@ export function SettingsPage() {
                 <tr key={a.name} className="border-b border-[var(--color-border)]">
                   <td className="px-4 py-2 text-zinc-200 text-xs font-medium">{a.name}</td>
                   <td className="px-4 py-2 font-mono text-xs text-zinc-400">{a.command}</td>
-                  <td className="px-4 py-2 font-mono text-xs text-zinc-500">{a.args?.join(" ") || "\u2014"}</td>
+                  <td className="px-4 py-2 font-mono text-xs text-zinc-500">{(Array.isArray(a.args) ? a.args.join(" ") : a.args) || "\u2014"}</td>
                 </tr>
               ))}
             </tbody>

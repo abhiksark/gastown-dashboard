@@ -4,9 +4,12 @@ import { useSSE } from "@/hooks/use-sse";
 import { StatusBadge } from "@/components/status-badge";
 import { cn } from "@/lib/utils";
 import type { Agent, FeedEvent } from "@/lib/types";
-import { ArrowLeft, CheckCircle2, Clock, Flame, Target, MonitorPlay, FileText } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, Flame, Target, MonitorPlay, FileText, RefreshCw, CheckCheck } from "lucide-react";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { SessionOutput } from "@/components/session-output";
+import { apiPost } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
+import { InlineConfirm } from "@/components/inline-confirm";
 
 const eventColors: Record<string, string> = {
   session_start: "text-blue-400",
@@ -57,6 +60,9 @@ export function AgentDetailPage() {
   const { events: liveEvents, connected } = useSSE("/api/feed/stream");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [outputOpen, setOutputOpen] = useState(false);
+  const [handingOff, setHandingOff] = useState(false);
+  const [markingDone, setMarkingDone] = useState(false);
+  const { addToast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const agent = agents?.find((a) => a.name === name);
@@ -125,12 +131,52 @@ export function AgentDetailPage() {
         )}
         <div className="ml-auto flex items-center gap-2">
           {agent?.rig && (
-            <button
-              onClick={() => setOutputOpen(true)}
-              className="flex items-center gap-1.5 rounded-md border border-[var(--color-border)] px-2.5 py-1 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors"
-            >
-              <MonitorPlay className="h-3 w-3" /> Output
-            </button>
+            <>
+              <button
+                onClick={() => setOutputOpen(true)}
+                className="flex items-center gap-1.5 rounded-md border border-[var(--color-border)] px-2.5 py-1 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors"
+              >
+                <MonitorPlay className="h-3 w-3" /> Output
+              </button>
+              <InlineConfirm
+                onConfirm={async () => {
+                  setHandingOff(true);
+                  try {
+                    await apiPost(`/actions/handoff/${encodeURIComponent(agent.rig!)}/${encodeURIComponent(agent.name)}`);
+                    addToast(`Handoff sent to ${agent.name}`, "success");
+                  } catch (err: any) {
+                    addToast(`Handoff failed: ${err.message}`, "error");
+                  } finally {
+                    setHandingOff(false);
+                  }
+                }}
+                confirmLabel="Confirm?"
+                disabled={handingOff}
+                className="flex items-center gap-1.5 rounded-md border border-[var(--color-border)] px-2.5 py-1 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors disabled:opacity-50"
+              >
+                <RefreshCw className={cn("h-3 w-3", handingOff && "animate-spin")} /> Handoff
+              </InlineConfirm>
+              {agent.role === "polecat" && (
+                <InlineConfirm
+                  onConfirm={async () => {
+                    setMarkingDone(true);
+                    try {
+                      await apiPost(`/actions/done/${encodeURIComponent(agent.rig!)}/${encodeURIComponent(agent.name)}`);
+                      addToast(`Done sent to ${agent.name}`, "success");
+                    } catch (err: any) {
+                      addToast(`Done failed: ${err.message}`, "error");
+                    } finally {
+                      setMarkingDone(false);
+                    }
+                  }}
+                  confirmLabel="Confirm?"
+                  disabled={markingDone}
+                  className="flex items-center gap-1.5 rounded-md border border-emerald-900/50 px-2.5 py-1 text-xs text-emerald-400 hover:text-emerald-300 hover:border-emerald-700 transition-colors disabled:opacity-50"
+                >
+                  <CheckCheck className="h-3 w-3" /> Done
+                </InlineConfirm>
+              )}
+            </>
           )}
           {agent?.rig && name && (
             <Link

@@ -29,7 +29,7 @@ import doctorRoutes from "./routes/doctor.js";
 import gatesRoutes from "./routes/gates.js";
 import patrolsRoutes from "./routes/patrols.js";
 import prsRoutes from "./routes/prs.js";
-
+import townRoutes from "./routes/town.js";
 
 const app = express();
 app.use(cors());
@@ -66,6 +66,7 @@ app.use("/api/dogs", dogsRoutes);
 app.use("/api/patrols", patrolsRoutes);
 app.use("/api/mountains", mountainsRoutes);
 app.use("/api/prs", prsRoutes);
+app.use("/api/town", townRoutes);
 
 // In production, serve built frontend static files
 if (process.env.NODE_ENV === "production") {

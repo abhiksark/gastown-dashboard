@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { StatusBadge } from "@/components/status-badge";
 import { InlineStatus } from "@/components/inline-status";
 import { useState } from "react";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause, Power, PowerOff } from "lucide-react";
 import type { Rig } from "@/lib/types";
 
 interface SchedulerStatus {
@@ -34,6 +34,9 @@ export function SettingsPage() {
   const { data: rigs } = useFetch<Rig[]>("/settings/rigs", 30000);
   const { data: info } = useFetch<TownInfo>("/settings/info", 60000);
   const [toggling, setToggling] = useState(false);
+  const [shutdownText, setShutdownText] = useState("");
+  const [showShutdown, setShowShutdown] = useState(false);
+  const [townActing, setTownActing] = useState(false);
   const { addToast } = useToast();
 
   async function toggleScheduler() {
@@ -202,6 +205,86 @@ export function SettingsPage() {
           <div className="h-16 rounded-lg skeleton" />
         )}
       </div>
+
+      {/* Town Control */}
+      <div className="rounded-lg border border-red-500/20 bg-[var(--color-card)] p-5 space-y-4">
+        <h3 className="text-sm font-semibold text-zinc-100">Town Control</h3>
+        <div className="flex gap-3">
+          <button
+            onClick={async () => {
+              setTownActing(true);
+              try {
+                await apiPost("/town/start");
+                addToast("Town starting — deacon and mayor launching", "success");
+              } catch (err: any) {
+                addToast(`Start failed: ${err.message}`, "error");
+              } finally {
+                setTownActing(false);
+              }
+            }}
+            disabled={townActing}
+            className="flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-2 text-xs font-medium text-white hover:bg-emerald-500 transition-colors disabled:opacity-50"
+          >
+            <Power className="h-3.5 w-3.5" /> Start Town
+          </button>
+          <button
+            onClick={() => setShowShutdown(true)}
+            disabled={townActing}
+            className="flex items-center gap-1.5 rounded-md bg-red-600 px-4 py-2 text-xs font-medium text-white hover:bg-red-500 transition-colors disabled:opacity-50"
+          >
+            <PowerOff className="h-3.5 w-3.5" /> Shutdown Town
+          </button>
+        </div>
+        <p className="text-[10px] text-zinc-600">
+          Shutdown stops all agents and removes polecat worktrees. Start launches the deacon and mayor.
+        </p>
+      </div>
+
+      {/* Shutdown confirmation dialog */}
+      {showShutdown && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60" onClick={() => { setShowShutdown(false); setShutdownText(""); }} />
+          <div className="relative w-full max-w-sm rounded-lg border border-red-500/40 bg-[var(--color-surface)] p-6 shadow-xl space-y-4">
+            <h3 className="text-sm font-semibold text-red-400">Confirm Shutdown</h3>
+            <p className="text-xs text-zinc-400">This will stop all agents and remove polecat worktrees. Type <span className="font-mono text-zinc-200">SHUTDOWN</span> to confirm.</p>
+            <input
+              type="text"
+              value={shutdownText}
+              onChange={(e) => setShutdownText(e.target.value)}
+              placeholder="Type SHUTDOWN"
+              autoFocus
+              className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-red-500"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => { setShowShutdown(false); setShutdownText(""); }}
+                className="rounded-md border border-[var(--color-border)] px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  setTownActing(true);
+                  try {
+                    await apiPost("/town/shutdown");
+                    addToast("Town shutting down", "success");
+                  } catch (err: any) {
+                    addToast(`Shutdown failed: ${err.message}`, "error");
+                  } finally {
+                    setTownActing(false);
+                    setShowShutdown(false);
+                    setShutdownText("");
+                  }
+                }}
+                disabled={shutdownText !== "SHUTDOWN" || townActing}
+                className="rounded-md bg-red-600 px-3 py-1.5 text-xs text-white hover:bg-red-500 transition-colors disabled:opacity-50"
+              >
+                {townActing ? "..." : "Shutdown"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

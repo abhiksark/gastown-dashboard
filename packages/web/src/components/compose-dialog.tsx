@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { apiPost } from "@/lib/api";
-import type { MailAddress } from "@/lib/types";
+import { useFetch } from "@/hooks/use-fetch";
+import { useToast } from "@/hooks/use-toast";
+import type { MailAddress, Rig } from "@/lib/types";
 
 interface ComposeDialogProps {
   open: boolean;
@@ -20,18 +22,32 @@ export function ComposeDialog({
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { data: rigs } = useFetch<Rig[]>("/rigs", 30000);
+  const { addToast } = useToast();
 
   if (!open) return null;
 
+  const isBroadcast = to.startsWith("@") || to.endsWith("/");
+
   async function handleSend() {
-    if (!to || !subject || !body) {
+    if (!to || (!isBroadcast && (!subject || !body))) {
       setError("All fields are required");
       return;
     }
     setSending(true);
     setError(null);
     try {
-      await apiPost("/mail/send", { to, subject, body });
+      if (isBroadcast) {
+        const broadcastBody: { message: string; rig?: string; all?: boolean } = {
+          message: body || subject,
+        };
+        if (to === "@all") broadcastBody.all = true;
+        else if (to.endsWith("/")) broadcastBody.rig = to.slice(0, -1);
+        await apiPost("/town/broadcast", broadcastBody);
+        addToast("Broadcast sent", "success");
+      } else {
+        await apiPost("/mail/send", { to, subject, body });
+      }
       setTo("");
       setSubject("");
       setBody("");
@@ -67,11 +83,22 @@ export function ComposeDialog({
               className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-2 text-sm text-zinc-200 outline-none focus:border-zinc-500"
             >
               <option value="">Select recipient...</option>
-              {addresses.map((addr) => (
-                <option key={addr.address} value={addr.address}>
-                  {addr.address} ({addr.type})
-                </option>
-              ))}
+              <optgroup label="Broadcast">
+                <option value="@all">@all (all agents)</option>
+                <option value="@workers">@workers (polecats + crew)</option>
+                {(rigs || []).map((r) => (
+                  <option key={`${r.name}/`} value={`${r.name}/`}>
+                    {r.name}/ (all in rig)
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Direct">
+                {addresses.map((addr) => (
+                  <option key={addr.address} value={addr.address}>
+                    {addr.address} ({addr.type})
+                  </option>
+                ))}
+              </optgroup>
             </select>
           </div>
 

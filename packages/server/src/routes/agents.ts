@@ -75,4 +75,18 @@ router.post("/:name/nudge", async (req, res) => {
   }
 });
 
+// POST /api/agents/:name/dnd — toggle DND for an agent
+router.post("/:name/dnd", async (req, res) => {
+  try {
+    const { name } = req.params;
+    const enabled = req.body.enabled;
+    const action = enabled ? "on" : "off";
+    // gt dnd operates on the current agent context, so nudge the command
+    const result = await runAction("gt", ["nudge", name, "--mode", "queue", `gt dnd ${action}`]);
+    res.json({ ok: true, enabled, output: result.stdout });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

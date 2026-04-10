@@ -4,7 +4,7 @@ import { useSSE } from "@/hooks/use-sse";
 import { StatusBadge } from "@/components/status-badge";
 import { cn } from "@/lib/utils";
 import type { Agent, FeedEvent } from "@/lib/types";
-import { ArrowLeft, CheckCircle2, Clock, Flame, Target, MonitorPlay, FileText, RefreshCw, CheckCheck } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, Flame, Target, MonitorPlay, FileText, RefreshCw, CheckCheck, BellOff, Bell } from "lucide-react";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { SessionOutput } from "@/components/session-output";
 import { apiPost } from "@/lib/api";
@@ -62,6 +62,8 @@ export function AgentDetailPage() {
   const [outputOpen, setOutputOpen] = useState(false);
   const [handingOff, setHandingOff] = useState(false);
   const [markingDone, setMarkingDone] = useState(false);
+  const [dnd, setDnd] = useState(false);
+  const [togglingDnd, setTogglingDnd] = useState(false);
   const { addToast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -127,6 +129,32 @@ export function AgentDetailPage() {
             {agent.rig && (
               <span className="text-xs text-zinc-500">{agent.rig}</span>
             )}
+            <button
+              onClick={async () => {
+                setTogglingDnd(true);
+                const target = agent.rig ? `${agent.rig}/${agent.name}` : agent.name;
+                try {
+                  await apiPost(`/agents/${encodeURIComponent(target)}/dnd`, { enabled: !dnd });
+                  setDnd(!dnd);
+                  addToast(`DND ${!dnd ? "on" : "off"} for ${agent.name}`, "success");
+                } catch (err: any) {
+                  addToast(`DND toggle failed: ${err.message}`, "error");
+                } finally {
+                  setTogglingDnd(false);
+                }
+              }}
+              disabled={togglingDnd}
+              className={cn(
+                "flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors disabled:opacity-50",
+                dnd
+                  ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                  : "bg-zinc-800 text-zinc-500 border border-zinc-700 hover:text-zinc-300"
+              )}
+              title={dnd ? "DND on — click to disable" : "DND off — click to enable"}
+            >
+              {dnd ? <BellOff className="h-2.5 w-2.5" /> : <Bell className="h-2.5 w-2.5" />}
+              DND
+            </button>
           </div>
         )}
         <div className="ml-auto flex items-center gap-2">

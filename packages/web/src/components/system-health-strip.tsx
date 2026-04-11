@@ -70,31 +70,20 @@ export function SystemHealthStrip({ data, escalations }: SystemHealthStripProps)
   const { level, issues } = determineHealth(data, escalations);
   const c = config[level];
 
-  const totalWorkers = data.rigs.items.reduce((sum, r) => sum + r.polecats + r.crew, 0);
-
   return (
-    <div className={`rounded-lg border ${c.border} ${c.bg} px-5 py-3 flex items-center justify-between`}>
-      <div className="flex items-center gap-3">
-        <span className={`h-2.5 w-2.5 rounded-full ${c.dot} shrink-0`} />
-        <div>
-          <span className={`text-sm font-medium ${c.text}`}>
-            {level === "healthy" ? "All systems operational" :
-             level === "degraded" ? "Attention needed" :
-             "Critical alert"}
+    <div className={`rounded-lg border ${c.border} ${c.bg} px-5 py-3 flex items-center gap-3`}>
+      <span className={`h-2.5 w-2.5 rounded-full ${c.dot} shrink-0`} />
+      <div>
+        <span className={`text-sm font-medium ${c.text}`}>
+          {level === "healthy" ? "All systems operational" :
+           level === "degraded" ? "Attention needed" :
+           "Critical alert"}
+        </span>
+        {issues.length > 0 && (
+          <span className="text-xs text-zinc-500 ml-2">
+            — {issues.join(", ")}
           </span>
-          {issues.length > 0 && (
-            <span className="text-xs text-zinc-500 ml-2">
-              — {issues.join(", ")}
-            </span>
-          )}
-        </div>
-      </div>
-      <div className="flex items-center gap-3 text-xs text-zinc-500">
-        <span>{data.rigs.total} rig{data.rigs.total !== 1 ? "s" : ""}</span>
-        <span className="text-zinc-700">|</span>
-        <span>{data.agents.total} agent{data.agents.total !== 1 ? "s" : ""}</span>
-        <span className="text-zinc-700">|</span>
-        <span>{totalWorkers} worker{totalWorkers !== 1 ? "s" : ""}</span>
+        )}
       </div>
     </div>
   );

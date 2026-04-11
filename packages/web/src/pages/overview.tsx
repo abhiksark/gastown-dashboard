@@ -1,19 +1,22 @@
 import { Link } from "react-router";
 import { useRealtime } from "@/hooks/use-realtime";
+import { useFetch } from "@/hooks/use-fetch";
 import { StatusBadge } from "@/components/status-badge";
+import { StatCard } from "@/components/stat-card";
 import { SystemHealthStrip } from "@/components/system-health-strip";
 import { LiveFeed } from "@/components/live-feed";
 import { ActivityHeatmap } from "@/components/activity-heatmap";
 import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import type { Overview as OverviewData, Escalation, Anomaly } from "@/lib/types";
-import { AlertTriangle, Bug, Zap, Ghost, Server } from "lucide-react";
+import type { Overview as OverviewData, Escalation, Anomaly, CostSummary } from "@/lib/types";
+import { AlertTriangle, Bug, Zap, Ghost, Server, Users, CircleDot, CheckCircle, DollarSign } from "lucide-react";
 import { useState } from "react";
 
 export function OverviewPage() {
   const { data, loading, error } = useRealtime<OverviewData>("/overview", 5000);
   const { data: escalations } = useRealtime<Escalation[]>("/escalations", 10000);
   const { data: anomalies } = useRealtime<Anomaly[]>("/anomalies", 30000);
+  const { data: todayCosts } = useFetch<CostSummary>("/costs/today", 30000);
   const { addToast } = useToast();
   const [acting, setActing] = useState<string | null>(null);
 
@@ -162,26 +165,17 @@ export function OverviewPage() {
         </div>
       )}
 
-      {/* 4. Compact Inline Stat Row */}
-      <div className="flex flex-wrap items-center gap-3 text-xs px-1">
-        <span className="text-zinc-400">{data.rigs.total} Rigs</span>
-        <span className="text-zinc-700">|</span>
-        <span className="text-zinc-400">{data.agents.total} Agents</span>
-        <span className="text-zinc-700">|</span>
-        <span className="text-blue-400 font-medium">{data.beads.hooked} Hooked</span>
-        <span className="text-zinc-700">|</span>
-        <span className="text-amber-400">{data.beads.open} Open</span>
-        <span className="text-zinc-700">|</span>
-        <span className="text-zinc-500">{data.beads.closed} Closed</span>
-        <span className="text-zinc-700">|</span>
-        <span className="text-zinc-400">{data.scheduler.queued_total} Queued</span>
-        <span className="text-zinc-700">|</span>
-        <span className="text-zinc-400">
-          Scheduler{" "}
-          <span className={data.scheduler.paused ? "text-amber-400" : "text-emerald-400"}>
-            {data.scheduler.paused ? "paused" : "running"}
-          </span>
-        </span>
+      {/* 4. Stat Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <StatCard label="Rigs" value={data.rigs.total} icon={Server} />
+        <StatCard label="Agents" value={data.agents.total} icon={Users} />
+        <StatCard label="Hooked" value={data.beads.hooked} icon={CircleDot} trend={data.beads.hooked > 0 ? "up" : "neutral"} />
+        <StatCard label="Closed" value={data.beads.closed} icon={CheckCircle} trend="up" />
+        <StatCard
+          label="Today's Cost"
+          value={todayCosts ? `$${todayCosts.total_usd.toFixed(2)}` : "\u2014"}
+          icon={DollarSign}
+        />
       </div>
 
       {/* 5. Activity Heatmap */}

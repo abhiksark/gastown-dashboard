@@ -12,7 +12,7 @@ import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { InlineStatus } from "@/components/inline-status";
 import type { Bead } from "@/lib/types";
-import { X, CircleDot, Plus, Zap, Copy, Eye, List, LayoutGrid, Sparkles, ArrowDown, ArrowUp, UserPlus, Anchor, Unlink } from "lucide-react";
+import { X, CircleDot, Plus, Zap, Copy, Eye, List, LayoutGrid, Waypoints, ArrowDown, ArrowUp, UserPlus, Anchor, Unlink } from "lucide-react";
 import { ExportButton } from "@/components/export-button";
 import { AssignDialog } from "@/components/assign-dialog";
 import { useFetch } from "@/hooks/use-fetch";
@@ -185,7 +185,7 @@ export function BeadsPage() {
               className={`rounded p-1.5 transition-colors ${viewMode === "graph" ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"}`}
               title="Visual graph"
             >
-              <Sparkles className="h-3.5 w-3.5" />
+              <Waypoints className="h-3.5 w-3.5" />
             </button>
           </div>
           {viewMode === "list" && (

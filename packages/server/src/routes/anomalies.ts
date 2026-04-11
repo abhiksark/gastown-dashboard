@@ -68,7 +68,14 @@ router.get("/", async (_req: Request, res: Response) => {
     const rigs = Array.isArray(rigsRaw) ? rigsRaw : [];
 
     // --- Stuck agents: hooked bead + no events from that agent in 30min ---
-    const hookedBeads = beads.filter((b: any) => b.status === "hooked" && b.assignee);
+    // Exclude infrastructure roles (witness, deacon, refinery, boot, dogs) — they idle normally
+    const infraPatterns = ["/witness", "/refinery", "deacon", "boot", "/dogs/"];
+    const hookedBeads = beads.filter((b: any) => {
+      if (b.status !== "hooked" || !b.assignee) return false;
+      if (b.ephemeral) return false;
+      const assignee = b.assignee as string;
+      return !infraPatterns.some((p) => assignee.includes(p));
+    });
     const thirtyMinAgo = Date.now() - 30 * 60 * 1000;
 
     for (const bead of hookedBeads) {

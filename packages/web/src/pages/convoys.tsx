@@ -8,7 +8,7 @@ import { AddBeadsDialog } from "@/components/add-beads-dialog";
 import { InlineConfirm } from "@/components/inline-confirm";
 import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import type { Convoy } from "@/lib/types";
+import type { Convoy, ConvoyBead } from "@/lib/types";
 import { Truck, LayoutGrid, GanttChart, Plus, ChevronDown, ChevronRight, Archive, Mountain as MountainIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -130,10 +130,10 @@ export function ConvoysPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {data.map((convoy) => {
             const total = convoy.total || 0;
-            const done = convoy.done || 0;
+            const done = convoy.completed || 0;
             const pct = total > 0 ? Math.round((done / total) * 100) : 0;
             const isExpanded = expanded.has(convoy.id);
-            const beadIds = (convoy.beads || []).map((b) => b.id);
+            const beadIds = (convoy.tracked || []).map((b) => b.id);
             return (
               <div
                 key={convoy.id}
@@ -167,14 +167,11 @@ export function ConvoysPage() {
 
                 {/* Stats row */}
                 <div className="flex gap-3 text-xs">
-                  {convoy.active > 0 && (
-                    <span className="text-blue-400">{convoy.active} active</span>
+                  {(total - done) > 0 && (
+                    <span className="text-blue-400">{total - done} remaining</span>
                   )}
-                  {convoy.blocked > 0 && (
-                    <span className="text-red-400">{convoy.blocked} blocked</span>
-                  )}
-                  {convoy.pending > 0 && (
-                    <span className="text-zinc-500">{convoy.pending} pending</span>
+                  {done > 0 && (
+                    <span className="text-emerald-400">{done} completed</span>
                   )}
                 </div>
 
@@ -225,9 +222,9 @@ export function ConvoysPage() {
                 </div>
 
                 {/* Expanded bead list */}
-                {isExpanded && convoy.beads && convoy.beads.length > 0 && (
+                {isExpanded && convoy.tracked && convoy.tracked.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-[var(--color-border)] space-y-1.5">
-                    {convoy.beads.map((b) => (
+                    {convoy.tracked.map((b) => (
                       <Link
                         key={b.id}
                         to="/beads"
@@ -245,7 +242,7 @@ export function ConvoysPage() {
                   </div>
                 )}
 
-                {isExpanded && (!convoy.beads || convoy.beads.length === 0) && (
+                {isExpanded && (!convoy.tracked || convoy.tracked.length === 0) && (
                   <p className="mt-3 pt-3 border-t border-[var(--color-border)] text-xs text-zinc-600 italic">
                     No beads in this convoy
                   </p>
@@ -271,7 +268,7 @@ export function ConvoysPage() {
         <AddBeadsDialog
           open={true}
           convoyId={addBeadsFor.id}
-          existingBeadIds={(addBeadsFor.beads || []).map((b) => b.id)}
+          existingBeadIds={(addBeadsFor.tracked || []).map((b: ConvoyBead) => b.id)}
           onClose={() => setAddBeadsFor(null)}
           onAdded={refetch}
         />

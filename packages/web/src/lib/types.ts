@@ -79,22 +79,22 @@ export interface Convoy {
   title: string;
   status: string;
   created_at: string;
-  updated_at: string;
-  owner: string;
-  beads: ConvoyBead[] | null;
+  updated_at?: string;
+  owner?: string;
+  tracked: ConvoyBead[] | null;
   total: number;
-  done: number;
-  active: number;
-  blocked: number;
-  pending: number;
+  completed: number;
 }
 
 export interface ConvoyBead {
   id: string;
   title: string;
   status: string;
-  assignee: string;
-  rig: string;
+  assignee?: string;
+  dependency_type?: string;
+  issue_type?: string;
+  blocked?: boolean;
+  labels?: string[];
 }
 
 // From /api/convoys/timeline

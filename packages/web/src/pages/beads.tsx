@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { useTableKeyboard } from "@/hooks/use-keyboard";
 import { Link } from "react-router";
 import { useRealtime } from "@/hooks/use-realtime";
@@ -124,12 +124,16 @@ export function BeadsPage() {
     );
   }
 
+  // Use ref for data lookup so handleGraphSelect doesn't change on every poll
+  const dataRef = useRef(data);
+  dataRef.current = data;
+
   const handleGraphSelect = useCallback(
     (id: string) => {
-      const bead = data?.find((b) => b.id === id) ?? null;
+      const bead = dataRef.current?.find((b) => b.id === id) ?? null;
       setSelected(bead);
     },
-    [data]
+    []
   );
 
   if (error) return <div className="text-red-400 text-sm">Failed to load beads: {error}</div>;

@@ -24,18 +24,14 @@ router.get("/graph", async (req, res) => {
     const raw = await runCli("bd", ["list", "--all", "--json"]);
     const beads = Array.isArray(raw) ? raw : [];
 
-    // Filter: exclude ephemeral wisps and system beads to keep graph usable
-    // Only include non-ephemeral beads, or beads that have dependencies
+    // Filter using structured fields, not title string matching
     const meaningful = beads.filter((b: any) => {
       if (b.ephemeral) return false;
-      if (b.title?.startsWith("mol-")) return false;
-      if (b.title?.includes("HANDOFF")) return false;
-      if (b.title?.startsWith("dog-")) return false;
-      // Include if it has deps, or is a real work bead
+      if (b.issue_type === "message") return false;
       return true;
     });
 
-    // Cap at 200 nodes to keep d3 performant
+    // Cap at 200 nodes for d3 performance
     const capped = meaningful.slice(0, 200);
     const nodeIds = new Set(capped.map((b: any) => b.id));
 
@@ -47,17 +43,29 @@ router.get("/graph", async (req, res) => {
       issue_type: b.issue_type,
     }));
 
-    const edges: { from: string; to: string }[] = [];
-    for (const b of capped) {
-      if (Array.isArray(b.dependencies)) {
-        for (const dep of b.dependencies) {
-          // Only include edges where both nodes are in the graph
-          if (nodeIds.has(dep.depends_on_id) && nodeIds.has(dep.issue_id)) {
-            edges.push({ from: dep.depends_on_id, to: dep.issue_id });
+    // Fetch real dependency data for beads that have deps
+    const withDeps = capped.filter((b: any) => (b.dependency_count ?? 0) > 0 || (b.dependent_count ?? 0) > 0);
+    const edges: { from: string; to: string; type: string }[] = [];
+
+    if (withDeps.length > 0) {
+      // Batch fetch deps for all beads with dependencies
+      const ids = withDeps.map((b: any) => b.id);
+      try {
+        const depData = await runCli("bd", ["dep", "list", ...ids, "--json"]);
+        if (Array.isArray(depData)) {
+          for (const dep of depData) {
+            const fromId = dep.depends_on_id || dep.id;
+            const toId = dep.issue_id || dep.dependent_id;
+            if (fromId && toId && nodeIds.has(fromId) && nodeIds.has(toId)) {
+              edges.push({ from: fromId, to: toId, type: dep.dependency_type || "blocks" });
+            }
           }
         }
+      } catch {
+        // dep list may fail if no deps exist — that's fine
       }
     }
+
     res.json({ nodes, edges });
   } catch (err: any) {
     res.status(500).json({ error: err.message });

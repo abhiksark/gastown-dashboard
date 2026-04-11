@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useFetch } from "@/hooks/use-fetch";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { StatusBadge } from "@/components/status-badge";
 import type { CostEntry, CostSummary } from "@/lib/types";
 import { DollarSign, TrendingUp, Cpu, Calendar } from "lucide-react";
@@ -51,6 +52,7 @@ interface DailyData {
 }
 
 export function CostsPage() {
+  const reducedMotion = useReducedMotion();
   const [dayFilter, setDayFilter] = useState(7);
   const { data: live } = useFetch<CostSummary>("/costs", 10000);
   const { data: today } = useFetch<HistoryData>("/costs/today", 30000);
@@ -184,7 +186,7 @@ export function CostsPage() {
                 }}
                 cursor={{ stroke: "#3b82f6", strokeWidth: 1, strokeDasharray: "4 4" }}
               />
-              <Area type="monotone" dataKey="cost" stroke="#3b82f6" fill="url(#costGradient)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#3b82f6", stroke: "#0a0a0a", strokeWidth: 2 }} animationDuration={800} />
+              <Area type="monotone" dataKey="cost" stroke="#3b82f6" fill="url(#costGradient)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#3b82f6", stroke: "#0a0a0a", strokeWidth: 2 }} animationDuration={800} isAnimationActive={!reducedMotion} />
             </AreaChart>
           </ResponsiveContainer>
         ) : (
@@ -209,7 +211,7 @@ export function CostsPage() {
                   {...chartTooltip}
                   formatter={(v: number) => [fmt(v), "Cost"]}
                 />
-                <Bar dataKey="cost" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="cost" fill="#3b82f6" radius={[0, 4, 4, 0]} isAnimationActive={!reducedMotion} />
               </BarChart>
             </ResponsiveContainer>
           ) : (

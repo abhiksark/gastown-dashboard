@@ -130,3 +130,12 @@ a:focus-visible,
 .light ::-webkit-scrollbar-thumb {
   background: #d4d4d8;
 }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; background: #1c1c1c; }
+  .light .skeleton { animation: none; background: #f4f4f5; }
+  .animate-pulse, .animate-pulse-subtle, .animate-fade-in-up { animation: none; }
+  .animate-spin { animation: none; }
+  * { transition-duration: 0.01ms !important; }
+}

@@ -93,6 +93,16 @@ a:focus-visible,
   animation: fade-in-up 0.3s ease-out both;
 }
 
+/* Subtle pulse for connection indicators */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s ease-in-out infinite;
+}
+
 /* Table row hover accent — uses box-shadow to avoid <tr> position:relative issues */
 .table-row-hover {
   box-shadow: inset 2px 0 0 0 transparent;

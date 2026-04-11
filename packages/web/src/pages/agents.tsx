@@ -153,10 +153,10 @@ export function AgentsPage() {
                       key={`${agent.rig}-${agent.name}`}
                       onClick={() => setSelected(agent)}
                       onContextMenu={(e) => handleContextMenu(e, agent)}
-                      className={`group border-b border-[var(--color-border)] cursor-pointer transition-colors ${
+                      className={`group border-b border-[var(--color-border)] cursor-pointer transition-colors table-row-hover ${
                         selected?.name === agent.name && selected?.rig === agent.rig
                           ? "bg-blue-500/5"
-                          : "hover:bg-[var(--color-card-hover)]"
+                          : "hover:bg-white/[0.03]"
                       }`}
                     >
                       <td className="px-4 py-2">

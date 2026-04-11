@@ -123,7 +123,7 @@ export function LiveFeed() {
               Paused{missedCount > 0 && ` · ${missedCount} new`}
             </button>
           )}
-          <span className={cn("h-2 w-2 rounded-full", connected ? "bg-emerald-500" : "bg-red-500")} />
+          <span className={cn("h-2 w-2 rounded-full", connected ? "bg-emerald-500 animate-pulse-subtle" : "bg-red-500")} />
         </div>
       </div>
       <div

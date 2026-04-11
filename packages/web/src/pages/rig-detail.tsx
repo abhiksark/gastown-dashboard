@@ -8,6 +8,7 @@ import type { Rig, Agent, Bead, PolecatStatus, Session, PullRequest } from "@/li
 import { useToast } from "@/hooks/use-toast";
 import { Server, ArrowLeft, RotateCw, Play, Square, Bomb, GitPullRequest } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { chartTooltip, chartGrid, chartAxisTick } from "@/lib/chart-theme";
 import {
   BarChart,
   Bar,
@@ -271,20 +272,19 @@ export function RigDetailPage() {
           {rigMetric.daily.length > 0 ? (
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={rigMetric.daily} margin={{ left: 0, right: 0, top: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                <CartesianGrid {...chartGrid} />
                 <XAxis
                   dataKey="date"
-                  tick={{ fill: "#71717a", fontSize: 11 }}
+                  tick={chartAxisTick}
                   tickFormatter={(v: string) => v.slice(5)}
                 />
                 <YAxis
                   allowDecimals={false}
-                  tick={{ fill: "#71717a", fontSize: 11 }}
+                  tick={chartAxisTick}
                   width={30}
                 />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: 8 }}
-                  labelStyle={{ color: "#e4e4e7" }}
+                  {...chartTooltip}
                   formatter={(v: number) => [v, "Beads"]}
                 />
                 <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />

@@ -18,6 +18,14 @@ import {
   Area,
 } from "recharts";
 import { cn } from "@/lib/utils";
+import {
+  chartTooltip,
+  chartTooltipElevated,
+  chartGrid,
+  chartGridClean,
+  chartAxisTick,
+  chartAxisClean,
+} from "@/lib/chart-theme";
 
 const COLORS = [
   "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6",
@@ -153,28 +161,22 @@ export function CostsPage() {
                   <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke="#1c1c1c" vertical={false} strokeDasharray="0" />
+              <CartesianGrid {...chartGridClean} />
               <XAxis
                 dataKey="date"
-                tick={{ fill: "#52525b", fontSize: 11, fontFamily: "'Inter', system-ui, sans-serif" }}
-                tickLine={false}
-                axisLine={false}
+                {...chartAxisClean}
                 tickFormatter={(d) => {
                   const date = new Date(d + "T00:00:00");
                   return date.toLocaleDateString([], { month: "short", day: "numeric" });
                 }}
               />
               <YAxis
-                tick={{ fill: "#52525b", fontSize: 11, fontFamily: "'Inter', system-ui, sans-serif" }}
-                tickLine={false}
-                axisLine={false}
+                {...chartAxisClean}
                 tickFormatter={(v) => `$${v.toFixed(0)}`}
                 width={50}
               />
               <Tooltip
-                contentStyle={{ backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}
-                labelStyle={{ color: "#a1a1aa", fontSize: 11 }}
-                itemStyle={{ color: "#e4e4e7", fontSize: 12 }}
+                {...chartTooltipElevated}
                 formatter={(v: number) => [fmt(v), "Cost"]}
                 labelFormatter={(d) => {
                   const date = new Date(d + "T00:00:00");
@@ -200,12 +202,11 @@ export function CostsPage() {
           {rigChartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={rigChartData} layout="vertical" margin={{ left: 10, right: 20, top: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                <XAxis type="number" tickFormatter={(v) => `$${v.toFixed(0)}`} tick={{ fill: "#71717a", fontSize: 11 }} />
-                <YAxis type="category" dataKey="name" tick={{ fill: "#a1a1aa", fontSize: 11 }} width={120} />
+                <CartesianGrid {...chartGrid} />
+                <XAxis type="number" tickFormatter={(v) => `$${v.toFixed(0)}`} tick={chartAxisTick} />
+                <YAxis type="category" dataKey="name" tick={{ ...chartAxisTick, fill: "#a1a1aa" }} width={120} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: 8 }}
-                  labelStyle={{ color: "#e4e4e7" }}
+                  {...chartTooltip}
                   formatter={(v: number) => [fmt(v), "Cost"]}
                 />
                 <Bar dataKey="cost" fill="#3b82f6" radius={[0, 4, 4, 0]} />
@@ -238,7 +239,7 @@ export function CostsPage() {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: 8 }}
+                    {...chartTooltip}
                     formatter={(v: number) => [fmt(v), "Cost"]}
                   />
                 </PieChart>

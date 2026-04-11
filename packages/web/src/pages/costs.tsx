@@ -280,7 +280,7 @@ export function CostsPage() {
             </thead>
             <tbody>
               {sortedSessions.map((s) => (
-                <tr key={s.session} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors">
+                <tr key={s.session} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors table-row-hover">
                   <td className="px-4 py-2 font-mono text-xs text-zinc-300">{s.session}</td>
                   <td className="px-4 py-2 text-xs text-zinc-400">{s.role}</td>
                   <td className="px-4 py-2 text-xs text-zinc-400">{s.rig}</td>

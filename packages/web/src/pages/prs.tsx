@@ -118,7 +118,7 @@ export function PRsPage() {
                   </thead>
                   <tbody>
                     {prs.map((pr) => (
-                      <tr key={pr.number} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors">
+                      <tr key={pr.number} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors table-row-hover">
                         <td className="px-4 py-2 text-xs text-zinc-500 tabular-nums">#{pr.number}</td>
                         <td className="px-4 py-2">
                           <div className="flex items-center gap-1.5">

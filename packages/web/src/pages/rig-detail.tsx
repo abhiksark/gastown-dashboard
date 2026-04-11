@@ -404,7 +404,7 @@ export function RigDetailPage() {
               </thead>
               <tbody>
                 {rigAgents.map((agent) => (
-                  <tr key={agent.name} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors">
+                  <tr key={agent.name} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors table-row-hover">
                     <td className="px-4 py-2">
                       <div className="flex items-center gap-2">
                         <span className="text-base">{agent.icon}</span>
@@ -438,7 +438,7 @@ export function RigDetailPage() {
               </thead>
               <tbody>
                 {rigBeads.map((bead) => (
-                  <tr key={bead.id} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors">
+                  <tr key={bead.id} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors table-row-hover">
                     <td className="px-4 py-2 font-mono text-xs text-zinc-500">{bead.id}</td>
                     <td className="px-4 py-2 text-zinc-200 text-xs truncate max-w-xs">{bead.title}</td>
                     <td className="px-4 py-2"><InlineStatus status={bead.status} /></td>
@@ -505,7 +505,7 @@ export function RigDetailPage() {
               <table className="w-full text-sm">
                 <tbody>
                   {prData.prs.slice(0, 5).map((pr) => (
-                    <tr key={pr.number} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors">
+                    <tr key={pr.number} className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors table-row-hover">
                       <td className="px-4 py-2 text-xs text-zinc-500 tabular-nums">#{pr.number}</td>
                       <td className="px-4 py-2">
                         <a href={pr.url} target="_blank" rel="noopener noreferrer" className="text-xs text-zinc-200 hover:underline truncate block max-w-xs">

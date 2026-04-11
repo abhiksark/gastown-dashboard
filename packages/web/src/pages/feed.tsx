@@ -69,7 +69,7 @@ function EventRow({ event }: { event: FeedEvent }) {
 
   return (
     <div
-      className="border-b border-[var(--color-border)] last:border-b-0 hover:bg-[var(--color-card-hover)] transition-colors"
+      className="border-b border-[var(--color-border)] last:border-b-0 hover:bg-[var(--color-card-hover)] transition-colors table-row-hover"
     >
       <button
         onClick={() => setExpanded(!expanded)}

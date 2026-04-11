@@ -112,7 +112,7 @@ export function RefineryPage() {
                   {mrs.map((mr) => (
                     <tr
                       key={mr.id}
-                      className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors"
+                      className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors table-row-hover"
                     >
                       <td className="px-4 py-2 font-mono text-xs text-zinc-500">
                         {mr.id}

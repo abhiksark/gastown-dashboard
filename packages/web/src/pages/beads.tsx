@@ -387,7 +387,7 @@ export function BeadsPage() {
                       e.preventDefault();
                       setCtxMenu({ pos: { x: e.clientX, y: e.clientY }, bead });
                     }}
-                    className={`border-b border-[var(--color-border)] cursor-pointer transition-colors ${
+                    className={`border-b border-[var(--color-border)] cursor-pointer transition-colors table-row-hover ${
                       selected?.id === bead.id
                         ? "bg-blue-500/5"
                         : "hover:bg-[var(--color-card-hover)]"

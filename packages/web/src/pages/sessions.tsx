@@ -176,7 +176,7 @@ export function SessionsPage() {
                       return (
                       <tr
                         key={session.session_id}
-                        className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors"
+                        className="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors table-row-hover"
                       >
                         <td className="px-4 py-2 text-zinc-200 text-xs font-medium">
                           {session.polecat}

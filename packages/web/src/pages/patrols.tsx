@@ -135,6 +135,7 @@ export function PatrolsPage() {
             checked={scan.zombies.checked}
             found={scan.zombies.found}
             variant={scan.zombies.found > 0 ? "danger" : "ok"}
+            index={0}
           />
           <ScanCard
             label="Stalls"
@@ -145,6 +146,7 @@ export function PatrolsPage() {
             detail={scan.stalls.stalls?.map(
               (s) => `${s.polecat}: ${s.stall_type} (${s.action})`
             )}
+            index={1}
           />
           <ScanCard
             label="Completions"
@@ -152,6 +154,7 @@ export function PatrolsPage() {
             checked={scan.completions.checked}
             found={scan.completions.found}
             variant={scan.completions.found > 0 ? "info" : "ok"}
+            index={2}
           />
         </div>
       ) : null}
@@ -212,7 +215,7 @@ export function PatrolsPage() {
                   return (
                     <div
                       key={`${event.ts}-${i}`}
-                      className={`flex items-center gap-3 rounded-md border ${color.border} ${color.bg} px-3 py-2 transition-colors`}
+                      className={`flex items-center gap-3 rounded-md border ${color.border} ${color.bg} px-3 py-2 transition-colors hover:brightness-125`}
                     >
                       <span className={`w-2 h-2 rounded-full shrink-0 ${color.dot}`} />
                       <span className="text-xs text-zinc-500 tabular-nums w-14 shrink-0">
@@ -244,6 +247,7 @@ function ScanCard({
   found,
   variant,
   detail,
+  index = 0,
 }: {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -251,18 +255,22 @@ function ScanCard({
   found: number;
   variant: "ok" | "warn" | "danger" | "info";
   detail?: string[];
+  index?: number;
 }) {
   const variantStyles = {
-    ok: { border: "border-emerald-500/20", bg: "bg-emerald-500/5", icon: "text-emerald-400", count: "text-emerald-400" },
-    warn: { border: "border-amber-500/20", bg: "bg-amber-500/5", icon: "text-amber-400", count: "text-amber-400" },
-    danger: { border: "border-red-500/20", bg: "bg-red-500/5", icon: "text-red-400", count: "text-red-400" },
-    info: { border: "border-blue-500/20", bg: "bg-blue-500/5", icon: "text-blue-400", count: "text-blue-400" },
+    ok: { border: "border-emerald-500/20", bg: "bg-emerald-500/5", icon: "text-emerald-400", count: "text-emerald-400", hoverBorder: "hover:border-emerald-500/40" },
+    warn: { border: "border-amber-500/20", bg: "bg-amber-500/5", icon: "text-amber-400", count: "text-amber-400", hoverBorder: "hover:border-amber-500/40" },
+    danger: { border: "border-red-500/20", bg: "bg-red-500/5", icon: "text-red-400", count: "text-red-400", hoverBorder: "hover:border-red-500/40" },
+    info: { border: "border-blue-500/20", bg: "bg-blue-500/5", icon: "text-blue-400", count: "text-blue-400", hoverBorder: "hover:border-blue-500/40" },
   };
 
   const style = variantStyles[variant];
 
   return (
-    <div className={`rounded-lg border ${style.border} ${style.bg} p-4`}>
+    <div
+      className={`rounded-lg border ${style.border} ${style.bg} ${style.hoverBorder} p-4 animate-fade-in-up transition-[border-color,transform] duration-200 hover:-translate-y-0.5`}
+      style={{ animationDelay: `${index * 75}ms` }}
+    >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Icon className={`h-4 w-4 ${style.icon}`} />

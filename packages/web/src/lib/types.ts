@@ -41,6 +41,7 @@ export interface Bead {
   dependency_count: number;
   dependent_count: number;
   comment_count: number;
+  ephemeral?: boolean;
 }
 
 export interface Scheduler {

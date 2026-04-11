@@ -6,29 +6,22 @@ import { StatusBadge } from "@/components/status-badge";
 import { CreateBeadDialog } from "@/components/create-bead-dialog";
 import { SlingDialog } from "@/components/sling-dialog";
 import { ContextMenu } from "@/components/context-menu";
-import { DependencyGraph } from "@/components/dependency-graph";
 import { KanbanBoard } from "@/components/kanban-board";
 import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { InlineStatus } from "@/components/inline-status";
 import type { Bead } from "@/lib/types";
-import { X, CircleDot, Plus, Zap, Copy, Eye, List, GitBranch, LayoutGrid, ArrowDown, ArrowUp, UserPlus, Anchor, Unlink } from "lucide-react";
+import { X, CircleDot, Plus, Zap, Copy, Eye, List, LayoutGrid, ArrowDown, ArrowUp, UserPlus, Anchor, Unlink } from "lucide-react";
 import { ExportButton } from "@/components/export-button";
 import { AssignDialog } from "@/components/assign-dialog";
 import { useFetch } from "@/hooks/use-fetch";
 import type { Agent } from "@/lib/types";
 
 type SortKey = "priority" | "updated_at" | "created_at" | "status";
-type ViewMode = "list" | "board" | "graph";
-
-interface GraphData {
-  nodes: { id: string; title: string; status: string; priority: number; issue_type: string }[];
-  edges: { from: string; to: string }[];
-}
+type ViewMode = "list" | "board";
 
 export function BeadsPage() {
   const { data, loading, error, refetch } = useRealtime<Bead[]>("/beads?all=true", 10000);
-  const { data: graphData } = useRealtime<GraphData>("/beads/graph", 15000);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [boardGroupBy, setBoardGroupBy] = useState<"rig" | "assignee" | "priority">("rig");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -126,17 +119,6 @@ export function BeadsPage() {
     );
   }
 
-  // Use ref for data lookup so handleGraphSelect doesn't change on every poll
-  const dataRef = useRef(data);
-  dataRef.current = data;
-
-  const handleGraphSelect = useCallback(
-    (id: string) => {
-      const bead = dataRef.current?.find((b) => b.id === id) ?? null;
-      setSelected(bead);
-    },
-    []
-  );
 
   if (error) return <div className="text-red-400 text-sm">Failed to load beads: {error}</div>;
 
@@ -197,13 +179,6 @@ export function BeadsPage() {
             >
               <LayoutGrid className="h-3.5 w-3.5" />
             </button>
-            <button
-              onClick={() => setViewMode("graph")}
-              className={`rounded p-1.5 transition-colors ${viewMode === "graph" ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"}`}
-              title="Dependency graph"
-            >
-              <GitBranch className="h-3.5 w-3.5" />
-            </button>
           </div>
           {viewMode === "list" && (
             <div className="flex gap-1">
@@ -249,117 +224,6 @@ export function BeadsPage() {
               groupBy={boardGroupBy}
             />
           </div>
-        </div>
-      ) : viewMode === "graph" ? (
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <DependencyGraph
-              nodes={graphData?.nodes ?? []}
-              edges={graphData?.edges ?? []}
-              onSelectBead={handleGraphSelect}
-              selectedId={selected?.id}
-            />
-          </div>
-          {/* Detail panel (shared with list view) */}
-          {selected && (
-            <div className="w-96 shrink-0 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] overflow-hidden flex flex-col" style={{ maxHeight: "calc(100vh - 200px)" }}>
-              {/* Header */}
-              <div className="px-5 py-4 border-b border-[var(--color-border)]">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <CircleDot className="h-4 w-4 text-zinc-400 shrink-0" />
-                    <span className="font-mono text-xs text-zinc-500">{selected.id}</span>
-                  </div>
-                  <button
-                    onClick={() => setSelected(null)}
-                    className="p-1 rounded-md text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-                <h3 className="text-sm font-semibold text-zinc-100 mt-2">{selected.title}</h3>
-              </div>
-
-              {/* Metadata */}
-              <div className="px-5 py-3 border-b border-[var(--color-border)] space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-500">Status</span>
-                  <StatusBadge status={selected.status} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-500">Priority</span>
-                  <span className="text-xs text-zinc-300 tabular-nums">P{selected.priority}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-500">Type</span>
-                  <span className="text-xs text-zinc-300">{selected.issue_type}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-500">Assignee</span>
-                  <span className="text-xs text-zinc-300">{selected.assignee || "\u2014"}</span>
-                </div>
-                {selected.dependencies && selected.dependencies.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <ArrowDown className="h-3 w-3 text-zinc-500" />
-                      <span className="text-xs text-zinc-500">Depends on ({selected.dependencies.length})</span>
-                    </div>
-                    <div className="space-y-1">
-                      {selected.dependencies.map((dep) => {
-                        const linked = beadMap.get(dep.depends_on_id);
-                        return (
-                          <button
-                            key={dep.depends_on_id}
-                            onClick={() => { if (linked) setSelected(linked); }}
-                            className="w-full text-left rounded bg-zinc-900 px-2.5 py-1.5 hover:bg-zinc-800 transition-colors group"
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="font-mono text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">{dep.depends_on_id}</span>
-                              {linked ? <InlineStatus status={linked.status} /> : <span className="text-[10px] text-zinc-600">{dep.type}</span>}
-                            </div>
-                            {linked && <p className="text-[11px] text-zinc-400 truncate mt-0.5">{linked.title}</p>}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-                {dependents.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <ArrowUp className="h-3 w-3 text-zinc-500" />
-                      <span className="text-xs text-zinc-500">Depended on by ({dependents.length})</span>
-                    </div>
-                    <div className="space-y-1">
-                      {dependents.map((dep) => (
-                        <button
-                          key={dep.id}
-                          onClick={() => setSelected(dep)}
-                          className="w-full text-left rounded bg-zinc-900 px-2.5 py-1.5 hover:bg-zinc-800 transition-colors group"
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-mono text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">{dep.id}</span>
-                            <InlineStatus status={dep.status} />
-                          </div>
-                          <p className="text-[11px] text-zinc-400 truncate mt-0.5">{dep.title}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Description */}
-              <div className="flex-1 overflow-y-auto px-5 py-4">
-                <h4 className="text-xs font-medium uppercase tracking-wider text-zinc-500 mb-2">Description</h4>
-                {selected.description ? (
-                  <pre className="text-xs text-zinc-300 whitespace-pre-wrap font-sans leading-relaxed">{selected.description}</pre>
-                ) : (
-                  <p className="text-xs text-zinc-600">No description</p>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       ) : (
         <div className="flex gap-4">

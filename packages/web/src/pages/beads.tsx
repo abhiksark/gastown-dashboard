@@ -7,18 +7,19 @@ import { CreateBeadDialog } from "@/components/create-bead-dialog";
 import { SlingDialog } from "@/components/sling-dialog";
 import { ContextMenu } from "@/components/context-menu";
 import { KanbanBoard } from "@/components/kanban-board";
+import { BeadFlowGraph } from "@/components/bead-flow-graph";
 import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { InlineStatus } from "@/components/inline-status";
 import type { Bead } from "@/lib/types";
-import { X, CircleDot, Plus, Zap, Copy, Eye, List, LayoutGrid, ArrowDown, ArrowUp, UserPlus, Anchor, Unlink } from "lucide-react";
+import { X, CircleDot, Plus, Zap, Copy, Eye, List, LayoutGrid, Sparkles, ArrowDown, ArrowUp, UserPlus, Anchor, Unlink } from "lucide-react";
 import { ExportButton } from "@/components/export-button";
 import { AssignDialog } from "@/components/assign-dialog";
 import { useFetch } from "@/hooks/use-fetch";
 import type { Agent } from "@/lib/types";
 
 type SortKey = "priority" | "updated_at" | "created_at" | "status";
-type ViewMode = "list" | "board";
+type ViewMode = "list" | "board" | "graph";
 
 export function BeadsPage() {
   const { data, loading, error, refetch } = useRealtime<Bead[]>("/beads?all=true", 10000);
@@ -179,6 +180,13 @@ export function BeadsPage() {
             >
               <LayoutGrid className="h-3.5 w-3.5" />
             </button>
+            <button
+              onClick={() => setViewMode("graph")}
+              className={`rounded p-1.5 transition-colors ${viewMode === "graph" ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"}`}
+              title="Visual graph"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+            </button>
           </div>
           {viewMode === "list" && (
             <div className="flex gap-1">
@@ -225,6 +233,12 @@ export function BeadsPage() {
             />
           </div>
         </div>
+      ) : viewMode === "graph" ? (
+        <BeadFlowGraph
+          beads={data || []}
+          onSelectBead={setSelected}
+          selectedId={selected?.id}
+        />
       ) : (
         <div className="flex gap-4">
           {/* Table */}

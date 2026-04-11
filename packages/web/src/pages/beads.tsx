@@ -7,18 +7,19 @@ import { CreateBeadDialog } from "@/components/create-bead-dialog";
 import { SlingDialog } from "@/components/sling-dialog";
 import { ContextMenu } from "@/components/context-menu";
 import { DependencyGraph } from "@/components/dependency-graph";
+import { KanbanBoard } from "@/components/kanban-board";
 import { apiPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { InlineStatus } from "@/components/inline-status";
 import type { Bead } from "@/lib/types";
-import { X, CircleDot, Plus, Zap, Copy, Eye, List, GitBranch, ArrowDown, ArrowUp, UserPlus, Anchor, Unlink } from "lucide-react";
+import { X, CircleDot, Plus, Zap, Copy, Eye, List, GitBranch, LayoutGrid, ArrowDown, ArrowUp, UserPlus, Anchor, Unlink } from "lucide-react";
 import { ExportButton } from "@/components/export-button";
 import { AssignDialog } from "@/components/assign-dialog";
 import { useFetch } from "@/hooks/use-fetch";
 import type { Agent } from "@/lib/types";
 
 type SortKey = "priority" | "updated_at" | "created_at" | "status";
-type ViewMode = "list" | "graph";
+type ViewMode = "list" | "board" | "graph";
 
 interface GraphData {
   nodes: { id: string; title: string; status: string; priority: number; issue_type: string }[];
@@ -29,6 +30,7 @@ export function BeadsPage() {
   const { data, loading, error, refetch } = useRealtime<Bead[]>("/beads?all=true", 10000);
   const { data: graphData } = useRealtime<GraphData>("/beads/graph", 15000);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [boardGroupBy, setBoardGroupBy] = useState<"rig" | "assignee" | "priority">("rig");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("priority");
   const [sortAsc, setSortAsc] = useState(true);
@@ -180,7 +182,7 @@ export function BeadsPage() {
           </button>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex gap-1 rounded-md border border-[var(--color-border)] p-0.5">
+          <div className="flex gap-0.5 rounded-md border border-[var(--color-border)] p-0.5">
             <button
               onClick={() => setViewMode("list")}
               className={`rounded p-1.5 transition-colors ${viewMode === "list" ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"}`}
@@ -189,9 +191,16 @@ export function BeadsPage() {
               <List className="h-3.5 w-3.5" />
             </button>
             <button
+              onClick={() => setViewMode("board")}
+              className={`rounded p-1.5 transition-colors ${viewMode === "board" ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"}`}
+              title="Board view"
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+            </button>
+            <button
               onClick={() => setViewMode("graph")}
               className={`rounded p-1.5 transition-colors ${viewMode === "graph" ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"}`}
-              title="Graph view"
+              title="Dependency graph"
             >
               <GitBranch className="h-3.5 w-3.5" />
             </button>
@@ -206,10 +215,41 @@ export function BeadsPage() {
               ))}
             </div>
           )}
+          {viewMode === "board" && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-zinc-500">Group by</span>
+              <div className="flex gap-0.5">
+                {(["rig", "assignee", "priority"] as const).map((g) => (
+                  <button
+                    key={g}
+                    onClick={() => setBoardGroupBy(g)}
+                    className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                      boardGroupBy === g
+                        ? "bg-zinc-800 text-zinc-100 ring-1 ring-zinc-600"
+                        : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
+                    }`}
+                  >
+                    {g}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
       {loading ? (
         <div className="space-y-2">{[...Array(4)].map((_, i) => <div key={i} className="h-14 rounded-lg skeleton" />)}</div>
+      ) : viewMode === "board" ? (
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <KanbanBoard
+              beads={data || []}
+              onSelectBead={setSelected}
+              selectedId={selected?.id}
+              groupBy={boardGroupBy}
+            />
+          </div>
+        </div>
       ) : viewMode === "graph" ? (
         <div className="flex gap-4">
           <div className="flex-1">

@@ -102,7 +102,7 @@ export function CostsPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-4">
           <div className="flex items-center gap-2 mb-2">
             <DollarSign className="h-4 w-4 text-zinc-400" />
@@ -133,49 +133,67 @@ export function CostsPage() {
             <span className="text-xs text-zinc-500">Top Spender</span>
           </div>
           <p className="text-2xl font-semibold text-zinc-100 tabular-nums">
-            {fmt(sessions.find(s => s.role === "mayor")?.cost_usd ?? 0)}
+            {fmt(sortedSessions[0]?.cost_usd ?? 0)}
           </p>
-          <p className="text-xs text-zinc-500 mt-1">mayor (live)</p>
+          <p className="text-xs text-zinc-500 mt-1">{sortedSessions[0]?.session || "\u2014"}</p>
         </div>
       </div>
 
       {/* Daily cost trend chart */}
-      {daily && daily.daily.length > 1 && (
-        <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-          <h3 className="text-sm font-semibold text-zinc-100 mb-4">Daily Spend</h3>
-          <ResponsiveContainer width="100%" height={200}>
+      <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-5">
+        <h3 className="text-sm font-semibold text-zinc-100 mb-4">Daily Spend</h3>
+        {!daily ? (
+          <div className="h-[260px] skeleton rounded" />
+        ) : daily.daily.length > 1 ? (
+          <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={daily.daily} margin={{ left: 10, right: 10, top: 5, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+              <defs>
+                <linearGradient id="costGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="#1c1c1c" vertical={false} strokeDasharray="0" />
               <XAxis
                 dataKey="date"
-                tick={{ fill: "#71717a", fontSize: 10 }}
+                tick={{ fill: "#52525b", fontSize: 11, fontFamily: "'Inter', system-ui, sans-serif" }}
+                tickLine={false}
+                axisLine={false}
                 tickFormatter={(d) => {
                   const date = new Date(d + "T00:00:00");
                   return date.toLocaleDateString([], { month: "short", day: "numeric" });
                 }}
               />
               <YAxis
-                tick={{ fill: "#71717a", fontSize: 10 }}
+                tick={{ fill: "#52525b", fontSize: 11, fontFamily: "'Inter', system-ui, sans-serif" }}
+                tickLine={false}
+                axisLine={false}
                 tickFormatter={(v) => `$${v.toFixed(0)}`}
-                width={60}
+                width={50}
               />
               <Tooltip
-                contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: 8 }}
-                labelStyle={{ color: "#e4e4e7" }}
+                contentStyle={{ backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}
+                labelStyle={{ color: "#a1a1aa", fontSize: 11 }}
+                itemStyle={{ color: "#e4e4e7", fontSize: 12 }}
                 formatter={(v: number) => [fmt(v), "Cost"]}
                 labelFormatter={(d) => {
                   const date = new Date(d + "T00:00:00");
                   return date.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
                 }}
+                cursor={{ stroke: "#3b82f6", strokeWidth: 1, strokeDasharray: "4 4" }}
               />
-              <Area type="monotone" dataKey="cost" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} strokeWidth={2} />
+              <Area type="monotone" dataKey="cost" stroke="#3b82f6" fill="url(#costGradient)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#3b82f6", stroke: "#0a0a0a", strokeWidth: 2 }} animationDuration={800} />
             </AreaChart>
           </ResponsiveContainer>
-        </div>
-      )}
+        ) : (
+          <div className="h-[260px] flex items-center justify-center text-xs text-zinc-600">
+            Select a multi-day range to see trends
+          </div>
+        )}
+      </div>
 
       {/* Charts row */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* By-rig bar chart */}
         <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-5">
           <h3 className="text-sm font-semibold text-zinc-100 mb-4">Cost by Rig ({dayFilter === 1 ? "today" : `${dayFilter}d`})</h3>

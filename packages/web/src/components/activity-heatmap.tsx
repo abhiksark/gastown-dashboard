@@ -72,7 +72,7 @@ export function ActivityHeatmap() {
   return (
     <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] overflow-hidden">
       <div className="px-4 py-3 border-b border-[var(--color-border)]">
-        <h3 className="text-sm font-medium text-zinc-200">Activity</h3>
+        <h3 className="text-sm font-medium text-zinc-200">System Events</h3>
       </div>
       <div className="p-4 overflow-x-auto">
         {/* Month labels */}

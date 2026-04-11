@@ -155,9 +155,9 @@ export function OverviewPage() {
             );
           })}
           {anomalies.length > 3 && (
-            <span className="text-xs text-zinc-500">
-              +{anomalies.length - 3} more anomal{anomalies.length - 3 !== 1 ? "ies" : "y"}
-            </span>
+            <Link to="/feed" className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+              +{anomalies.length - 3} more anomal{anomalies.length - 3 !== 1 ? "ies" : "y"} →
+            </Link>
           )}
         </div>
       )}

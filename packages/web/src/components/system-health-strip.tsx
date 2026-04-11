@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import type { Overview } from "@/lib/types";
 import type { Escalation } from "@/lib/types";
 
@@ -6,6 +7,11 @@ type HealthLevel = "healthy" | "degraded" | "critical";
 interface SystemHealthStripProps {
   data: Overview;
   escalations: Escalation[];
+}
+
+interface HealthIssue {
+  text: string;
+  link: string;
 }
 
 const config: Record<HealthLevel, { border: string; bg: string; dot: string; text: string }> = {
@@ -29,34 +35,39 @@ const config: Record<HealthLevel, { border: string; bg: string; dot: string; tex
   },
 };
 
-function determineHealth(data: Overview, escalations: Escalation[]): { level: HealthLevel; issues: string[] } {
-  const issues: string[] = [];
+function determineHealth(data: Overview, escalations: Escalation[]): { level: HealthLevel; issues: HealthIssue[] } {
+  const issues: HealthIssue[] = [];
 
-  // Critical: open critical/high escalations
   const criticalEscalations = escalations.filter(
     (e) => e.status === "open" && (e.severity === "critical" || e.severity === "high")
   );
   if (criticalEscalations.length > 0) {
-    issues.push(`${criticalEscalations.length} critical escalation${criticalEscalations.length !== 1 ? "s" : ""}`);
+    issues.push({
+      text: `${criticalEscalations.length} critical escalation${criticalEscalations.length !== 1 ? "s" : ""}`,
+      link: "/escalations",
+    });
   }
 
-  // Degraded: non-operational rigs
   const degradedRigs = data.rigs.items.filter((r) => r.status !== "operational");
   if (degradedRigs.length > 0) {
-    issues.push(`${degradedRigs.length} rig${degradedRigs.length !== 1 ? "s" : ""} degraded`);
+    issues.push({
+      text: `${degradedRigs.length} rig${degradedRigs.length !== 1 ? "s" : ""} degraded`,
+      link: "/rigs",
+    });
   }
 
-  // Degraded: scheduler paused
   if (data.scheduler.paused) {
-    issues.push("scheduler paused");
+    issues.push({ text: "scheduler paused", link: "/settings" });
   }
 
-  // Degraded: open medium/low escalations
   const openEscalations = escalations.filter(
     (e) => e.status === "open" && e.severity !== "critical" && e.severity !== "high"
   );
   if (openEscalations.length > 0) {
-    issues.push(`${openEscalations.length} open escalation${openEscalations.length !== 1 ? "s" : ""}`);
+    issues.push({
+      text: `${openEscalations.length} open escalation${openEscalations.length !== 1 ? "s" : ""}`,
+      link: "/escalations",
+    });
   }
 
   const level: HealthLevel =
@@ -70,20 +81,41 @@ export function SystemHealthStrip({ data, escalations }: SystemHealthStripProps)
   const { level, issues } = determineHealth(data, escalations);
   const c = config[level];
 
+  const totalPolecats = data.rigs.items.reduce((s, r) => s + r.polecats, 0);
+  const totalCrew = data.rigs.items.reduce((s, r) => s + r.crew, 0);
+
   return (
-    <div className={`rounded-lg border ${c.border} ${c.bg} px-5 py-3 flex items-center gap-3`}>
-      <span className={`h-2.5 w-2.5 rounded-full ${c.dot} shrink-0`} />
-      <div>
-        <span className={`text-sm font-medium ${c.text}`}>
-          {level === "healthy" ? "All systems operational" :
-           level === "degraded" ? "Attention needed" :
-           "Critical alert"}
-        </span>
-        {issues.length > 0 && (
-          <span className="text-xs text-zinc-500 ml-2">
-            — {issues.join(", ")}
+    <div className={`rounded-lg border ${c.border} ${c.bg} px-5 py-3 flex items-center justify-between`}>
+      <div className="flex items-center gap-3">
+        <span className={`h-2.5 w-2.5 rounded-full ${c.dot} shrink-0`} />
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className={`text-sm font-medium ${c.text}`}>
+            {level === "healthy" ? "All systems operational" :
+             level === "degraded" ? "Attention needed" :
+             "Critical alert"}
           </span>
-        )}
+          {issues.length > 0 && (
+            <>
+              <span className="text-xs text-zinc-600">—</span>
+              {issues.map((issue, i) => (
+                <span key={i} className="flex items-center gap-1.5">
+                  {i > 0 && <span className="h-3 w-px bg-zinc-700" />}
+                  <Link
+                    to={issue.link}
+                    className="text-xs text-zinc-400 hover:text-zinc-200 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors"
+                  >
+                    {issue.text}
+                  </Link>
+                </span>
+              ))}
+            </>
+          )}
+        </div>
+      </div>
+      <div className="hidden sm:flex items-center gap-2 text-xs text-zinc-500 shrink-0 ml-3">
+        <span>{totalPolecats}p</span>
+        <span className="h-3 w-px bg-zinc-700" />
+        <span>{totalCrew}c</span>
       </div>
     </div>
   );

@@ -60,7 +60,7 @@ export function DependencyGraph({ nodes, edges, onSelectBead, selectedId }: Prop
   const simRef = useRef<d3.Simulation<SimNode, SimLink> | null>(null);
   const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const prevDataRef = useRef<string>("");
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [hovered, setHovered] = useState<{ id: string; x: number; y: number } | null>(null);
 
   const render = useCallback(() => {
     const svg = svgRef.current;
@@ -210,8 +210,15 @@ export function DependencyGraph({ nodes, edges, onSelectBead, selectedId }: Prop
       .join("g")
       .attr("cursor", "pointer")
       .on("click", (_, d) => onSelectBead(d.id))
-      .on("mouseenter", (_, d) => setHoveredId(d.id))
-      .on("mouseleave", () => setHoveredId(null))
+      .on("mouseenter", (event, d) => {
+        const svgRect = svgRef.current?.getBoundingClientRect();
+        if (svgRect) setHovered({ id: d.id, x: event.clientX - svgRect.left, y: event.clientY - svgRect.top });
+      })
+      .on("mousemove", (event) => {
+        const svgRect = svgRef.current?.getBoundingClientRect();
+        if (svgRect) setHovered(prev => prev ? { ...prev, x: event.clientX - svgRect.left, y: event.clientY - svgRect.top } : null);
+      })
+      .on("mouseleave", () => setHovered(null))
       .call(
         d3
           .drag<SVGGElement, SimNode>()
@@ -293,6 +300,7 @@ export function DependencyGraph({ nodes, edges, onSelectBead, selectedId }: Prop
   const legendItems = [
     { status: "open", label: "Open" },
     { status: "hooked", label: "Hooked" },
+    { status: "in_progress", label: "In Progress" },
     { status: "closed", label: "Closed" },
     { status: "blocked", label: "Blocked" },
     { status: "deferred", label: "Deferred" },
@@ -311,18 +319,24 @@ export function DependencyGraph({ nodes, edges, onSelectBead, selectedId }: Prop
         <Maximize2 className="h-3.5 w-3.5" />
       </button>
 
-      {/* Hover tooltip */}
-      {hoveredId && (() => {
-        const n = nodes.find(n => n.id === hoveredId);
+      {/* Hover tooltip — follows cursor */}
+      {hovered && (() => {
+        const n = nodes.find(n => n.id === hovered.id);
         if (!n) return null;
         return (
-          <div className="absolute top-3 left-3 rounded-md bg-zinc-900/90 border border-zinc-700 px-3 py-2 backdrop-blur-sm pointer-events-none max-w-xs">
+          <div
+            className="absolute rounded-md bg-zinc-900/95 border border-zinc-700 px-3 py-2 backdrop-blur-sm pointer-events-none max-w-xs shadow-lg"
+            style={{ left: hovered.x + 16, top: hovered.y - 10 }}
+          >
             <p className="font-mono text-[10px] text-zinc-500">{n.id}</p>
-            <p className="text-xs text-zinc-200 mt-0.5">{n.title}</p>
-            <div className="flex items-center gap-2 mt-1">
+            <p className="text-xs text-zinc-200 mt-0.5 leading-snug">{n.title}</p>
+            <div className="flex items-center gap-2 mt-1.5">
               <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: statusColor(n.status) }} />
               <span className="text-[10px] text-zinc-400">{n.status}</span>
+              <span className="text-[10px] text-zinc-600">|</span>
               <span className="text-[10px] text-zinc-500">P{n.priority}</span>
+              <span className="text-[10px] text-zinc-600">|</span>
+              <span className="text-[10px] text-zinc-500">{n.issue_type}</span>
             </div>
           </div>
         );
@@ -336,7 +350,7 @@ export function DependencyGraph({ nodes, edges, onSelectBead, selectedId }: Prop
               className="inline-block h-2.5 w-2.5 rounded-full"
               style={{ backgroundColor: statusColor(item.status) }}
             />
-            <span className="text-[10px] text-zinc-400">{item.label}</span>
+            <span className="text-[11px] text-zinc-400">{item.label}</span>
           </div>
         ))}
       </div>

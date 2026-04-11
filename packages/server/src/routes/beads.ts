@@ -43,26 +43,47 @@ router.get("/graph", async (req, res) => {
       issue_type: b.issue_type,
     }));
 
-    // Fetch real dependency data for beads that have deps
-    const withDeps = capped.filter((b: any) => (b.dependency_count ?? 0) > 0 || (b.dependent_count ?? 0) > 0);
+    // Fetch real dependency data via bd dep list
+    // Only beads with dependency_count > 0 have outgoing deps worth fetching
+    const withDeps = capped.filter((b: any) => (b.dependency_count ?? 0) > 0);
     const edges: { from: string; to: string; type: string }[] = [];
 
     if (withDeps.length > 0) {
-      // Batch fetch deps for all beads with dependencies
       const ids = withDeps.map((b: any) => b.id);
       try {
+        // bd dep list returns different shapes for single vs batch:
+        // Single: enriched bead objects with {id, dependency_type}
+        // Batch: join-table records with {issue_id, depends_on_id, type}
         const depData = await runCli("bd", ["dep", "list", ...ids, "--json"]);
         if (Array.isArray(depData)) {
           for (const dep of depData) {
-            const fromId = dep.depends_on_id || dep.id;
-            const toId = dep.issue_id || dep.dependent_id;
+            let fromId: string | undefined;
+            let toId: string | undefined;
+            let depType: string;
+
+            if (dep.depends_on_id && dep.issue_id) {
+              // Batch format: join-table record
+              // Arrow: dependency → dependent (A blocks B: arrow from A to B)
+              fromId = dep.depends_on_id;
+              toId = dep.issue_id;
+              depType = dep.type || "blocks";
+            } else if (dep.id && dep.dependency_type && ids.length === 1) {
+              // Single-ID format: enriched bead (the dependency itself)
+              // dep.id is the dependency, ids[0] is the dependent
+              fromId = dep.id;
+              toId = ids[0];
+              depType = dep.dependency_type;
+            } else {
+              continue;
+            }
+
             if (fromId && toId && nodeIds.has(fromId) && nodeIds.has(toId)) {
-              edges.push({ from: fromId, to: toId, type: dep.dependency_type || "blocks" });
+              edges.push({ from: fromId, to: toId, type: depType });
             }
           }
         }
       } catch {
-        // dep list may fail if no deps exist — that's fine
+        // dep list may fail if no deps exist
       }
     }
 

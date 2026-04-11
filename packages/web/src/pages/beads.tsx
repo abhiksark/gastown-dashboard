@@ -150,6 +150,42 @@ export function BeadsPage() {
           {selected.labels && selected.labels.length > 0 && (
             <div className="flex items-center justify-between"><span className="text-xs text-zinc-500">Labels</span><div className="flex gap-1 flex-wrap justify-end">{selected.labels.map((l) => <span key={l} className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-400">{l}</span>)}</div></div>
           )}
+          {/* Dependencies */}
+          {selected.dependencies && selected.dependencies.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 mb-1.5"><ArrowDown className="h-3 w-3 text-zinc-500" /><span className="text-xs text-zinc-500">Depends on ({selected.dependencies.length})</span></div>
+              <div className="space-y-1">
+                {selected.dependencies.map((dep) => {
+                  const linked = beadMap.get(dep.depends_on_id);
+                  return (
+                    <button key={dep.depends_on_id} onClick={() => { if (linked) setSelected(linked); }} className="w-full text-left rounded bg-zinc-900 px-2.5 py-1.5 hover:bg-zinc-800 transition-colors group">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-mono text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">{dep.depends_on_id}</span>
+                        {linked ? <InlineStatus status={linked.status} /> : <span className="text-[10px] text-zinc-600">{dep.type}</span>}
+                      </div>
+                      {linked && <p className="text-[11px] text-zinc-400 truncate mt-0.5">{linked.title}</p>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          {dependents.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 mb-1.5"><ArrowUp className="h-3 w-3 text-zinc-500" /><span className="text-xs text-zinc-500">Depended on by ({dependents.length})</span></div>
+              <div className="space-y-1">
+                {dependents.map((dep) => (
+                  <button key={dep.id} onClick={() => setSelected(dep)} className="w-full text-left rounded bg-zinc-900 px-2.5 py-1.5 hover:bg-zinc-800 transition-colors group">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">{dep.id}</span>
+                      <InlineStatus status={dep.status} />
+                    </div>
+                    <p className="text-[11px] text-zinc-400 truncate mt-0.5">{dep.title}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-4">
           <h4 className="text-xs font-medium uppercase tracking-wider text-zinc-500 mb-2">Description</h4>
@@ -160,14 +196,38 @@ export function BeadsPage() {
           )}
         </div>
         <div className="px-5 py-3 border-t border-[var(--color-border)] space-y-2">
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <button onClick={() => setSlingOpen(true)} className="flex-1 rounded-md border border-[var(--color-border)] px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors flex items-center justify-center gap-1.5">
               <Zap className="h-3 w-3" /> Sling
             </button>
+            {selected.status === "open" && (
+              <button onClick={() => setShowHookSelect(!showHookSelect)} className="flex-1 rounded-md border border-cyan-900/50 px-3 py-1.5 text-xs text-cyan-400 hover:text-cyan-300 hover:border-cyan-700 transition-colors flex items-center justify-center gap-1.5">
+                <Anchor className="h-3 w-3" /> Hook
+              </button>
+            )}
+            {selected.status === "hooked" && (
+              <button onClick={async () => { try { await apiPost("/actions/unhook", { target: selected.assignee }); addToast("Unhooked", "success"); refetch(); } catch (err: any) { addToast(`Failed: ${err.message}`, "error"); } }} className="flex-1 rounded-md border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors flex items-center justify-center gap-1.5">
+                <Unlink className="h-3 w-3" /> Unhook
+              </button>
+            )}
+            {selected.dependency_count > 0 && selected.status !== "closed" && (
+              <button onClick={async () => { try { await apiPost(`/gates/${selected.id}/resolve`); addToast("Bead unblocked", "success"); refetch(); } catch (err: any) { addToast(`Failed: ${err.message}`, "error"); } }} className="flex-1 rounded-md border border-amber-900/50 px-3 py-1.5 text-xs text-amber-400 hover:text-amber-300 hover:border-amber-700 transition-colors">
+                Resolve
+              </button>
+            )}
             {selected.status !== "closed" && (
               <button onClick={() => setShowCloseInput(!showCloseInput)} className="flex-1 rounded-md border border-red-900/50 px-3 py-1.5 text-xs text-red-400 hover:text-red-300 hover:border-red-700 transition-colors">Close</button>
             )}
           </div>
+          {showHookSelect && (
+            <div className="flex gap-2">
+              <select value={hookTarget} onChange={(e) => setHookTarget(e.target.value)} className="flex-1 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1.5 text-xs text-zinc-200 outline-none focus:border-zinc-500">
+                <option value="">Select agent...</option>
+                {(agents || []).map((a) => { const val = a.rig ? `${a.rig}/${a.name}` : a.name; return <option key={val} value={val}>{a.name} ({a.role}){a.rig ? ` — ${a.rig}` : ""}</option>; })}
+              </select>
+              <button onClick={async () => { if (!hookTarget) return; setHooking(true); try { await apiPost("/actions/hook", { bead: selected.id, target: hookTarget }); addToast(`Hooked to ${hookTarget}`, "success"); setShowHookSelect(false); setHookTarget(""); refetch(); } catch (err: any) { addToast(`Failed: ${err.message}`, "error"); } finally { setHooking(false); } }} disabled={hooking || !hookTarget} className="rounded-md bg-cyan-600 px-3 py-1.5 text-xs text-white hover:bg-cyan-500 transition-colors disabled:opacity-50">{hooking ? "..." : "Hook"}</button>
+            </div>
+          )}
           {showCloseInput && (
             <div className="flex gap-2">
               <input type="text" value={closeReason} onChange={(e) => setCloseReason(e.target.value)} placeholder="Reason (optional)" className="flex-1 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-500" autoFocus />
@@ -290,6 +350,7 @@ export function BeadsPage() {
               groupBy={boardGroupBy}
             />
           </div>
+          {selected && renderDetailPanel()}
         </div>
       ) : viewMode === "graph" ? (
         <div className="flex gap-4">
